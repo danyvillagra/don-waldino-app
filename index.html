@@ -646,7 +646,7 @@
             <button onclick="openModalDegustFeria()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
               <i data-lucide="gift" class="w-4 h-4"></i> Degustación / Cortesía
             </button>
-            <button onclick="openModal('modalComprobantesSIP')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+            <button onclick="showResumenFeria('2026-10-03')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
               <i data-lucide="receipt" class="w-4 h-4"></i> Comprobantes SIP (03/10)
             </button>
             <button onclick="sendFeriaWhatsAppReport()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow">
@@ -654,6 +654,9 @@
             </button>
           </div>
         </div>
+
+        <!-- CONTROL DE EFECTIVO Y COMISIONES -->
+        <div id="feria-pendientes" class="mt-4"></div>
 
         <!-- CALENDARIO DE SÁBADOS DE FERIA EN PLAZA ITALIA -->
         <div class="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
@@ -1170,7 +1173,7 @@
             <span id="cierre-calc-total" class="font-black text-amber-400">Gs 0</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-slate-300">Comisión Jazmín (15%):</span>
+            <span class="text-slate-300">Comisión Jazmín (15%) — <b class="text-purple-300">se transfiere aparte</b>:</span>
             <span id="cierre-calc-comision" class="font-bold text-purple-300">Gs 0</span>
           </div>
           <div class="flex justify-between border-t border-slate-700 pt-2">
@@ -1186,9 +1189,10 @@
             <span id="cierre-calc-diff" class="font-bold text-emerald-400">Gs 0</span>
           </div>
           <div class="flex justify-between border-t border-slate-700 pt-2">
-            <span id="cierre-calc-aentregar-label" class="text-amber-300 font-bold">💵 Efectivo a entregar a Don Waldino:</span>
+            <span id="cierre-calc-aentregar-label" class="text-amber-300 font-bold">💵 Efectivo a entregar (completo):</span>
             <span id="cierre-calc-aentregar" class="font-black text-amber-300">Gs 0</span>
           </div>
+          <p class="text-slate-400 text-[10px] -mt-1">Regla: la comisión nunca se descuenta del efectivo. El efectivo se entrega completo.</p>
           <div class="flex justify-between">
             <span class="text-slate-300">🍽️ Degustaciones (unidades):</span>
             <span id="cierre-calc-degusts" class="font-bold text-orange-300">0 uds</span>
@@ -1207,6 +1211,21 @@
           </div>
         </div>
 
+        <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl">
+          <label class="block text-xs font-bold text-amber-900 uppercase mb-1">💵 ¿A quién se entregó el efectivo?</label>
+          <div class="grid grid-cols-2 gap-2">
+            <select id="cierre-entregado-a" onchange="document.getElementById('cierre-entregado-otro').classList.toggle('hidden', this.value !== 'Otro')" class="w-full bg-white border border-amber-300 rounded-lg p-2.5 text-sm font-bold">
+              <option value="Dany">Dany</option>
+              <option value="Waldi">Waldi</option>
+              <option value="Otro">Otro…</option>
+              <option value="">Todavía lo tiene Jazmín</option>
+            </select>
+            <input type="date" id="cierre-entrega-fecha" class="w-full bg-white border border-amber-300 rounded-lg p-2.5 text-sm font-semibold">
+          </div>
+          <input type="text" id="cierre-entregado-otro" placeholder="Nombre de quien recibió" class="hidden mt-2 w-full bg-white border border-amber-300 rounded-lg p-2.5 text-sm">
+          <p class="text-[10px] text-amber-800 mt-1">Después, quien lo recibió registra el depósito en la cuenta de Don Waldino y la operación queda cerrada.</p>
+        </div>
+
         <div>
           <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Observaciones adicionales</label>
           <textarea id="cierre-obs" rows="2" placeholder="Ej: Muy buena concurrencia, clima soleado..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-medium"></textarea>
@@ -1218,125 +1237,6 @@
         <button onclick="saveCierreFeria()" class="flex-1 py-3 bg-gradient-to-r from-chili-700 to-chili-600 hover:from-chili-600 hover:to-chili-500 text-white font-black rounded-xl text-sm shadow-lg flex items-center justify-center gap-2">
           <i data-lucide="check-circle-2" class="w-4 h-4"></i> Confirmar Cierre de Feria
         </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Comprobantes SIP de Feria 03/10 -->
-  <div id="modalComprobantesSIP" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl animate-pop max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="bg-blue-100 text-blue-800 text-[10px] font-black px-2 py-0.5 rounded">Feria 03/10/2026</span>
-            <h3 class="font-black text-slate-900 text-lg">Comprobantes y Liquidación</h3>
-          </div>
-          <p class="text-xs text-slate-500">Plaza Italia - Encargada: Jazmín Rodríguez</p>
-        </div>
-        <button onclick="closeModal('modalComprobantesSIP')" class="text-slate-400 hover:text-slate-700">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <!-- Resumen de Cuadre -->
-      <div class="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
-        <div class="flex justify-between items-center">
-          <span class="text-xs font-bold text-emerald-800">✅ Cuadre de Caja y Pagos:</span>
-          <span class="font-black text-emerald-700 text-sm">Gs 550.000 (100% OK)</span>
-        </div>
-        <p class="text-[11px] text-emerald-700 mt-1">
-          Efectivo (Gs 150.000) + 8 Transferencias SIP (Gs 400.000) = <b>Gs 550.000</b>.<br>
-          Comisión Jazmín (15%): <b>Gs 82.500</b> | Mesa: <b>Gs 35.000</b> | Neto Don Waldino: <b>Gs 432.500</b>.
-        </p>
-      </div>
-
-      <!-- Detalle de Productos Vendidos -->
-      <div class="mt-4">
-        <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider mb-2">Productos Vendidos en la Feria (14 frascos):</h4>
-        <div class="space-y-1.5 text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200">
-          <div class="flex justify-between">
-            <span>• 7 Pastas de Ají y Morrones (con descuento Waldi)</span>
-            <span class="font-bold">Gs 270.000</span>
-          </div>
-          <div class="flex justify-between">
-            <span>• 5 Mermeladas Frutilla y Ají</span>
-            <span class="font-bold">Gs 200.000</span>
-          </div>
-          <div class="flex justify-between">
-            <span>• 2 Pickles pequeños (360 ml)</span>
-            <span class="font-bold">Gs 80.000</span>
-          </div>
-          <div class="pt-2 border-t border-slate-200 flex justify-between font-black text-slate-900">
-            <span>Total Mercadería Vendida:</span>
-            <span>Gs 550.000</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Lista de Comprobantes SIP Registrados -->
-      <div class="mt-4">
-        <div class="flex justify-between items-center mb-2">
-          <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider">8 Transferencias SIP a Banco Continental DW:</h4>
-          <span class="font-black text-blue-700 text-xs">Total: Gs 400.000</span>
-        </div>
-        <div class="space-y-2 text-xs">
-          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg flex justify-between items-center">
-            <span class="font-medium text-slate-800">1. SIP Transferencia</span>
-            <span class="font-bold text-blue-800 font-mono">Gs 40.000 ➔ Cont DW</span>
-          </div>
-          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg flex justify-between items-center">
-            <span class="font-medium text-slate-800">2. SIP Transferencia</span>
-            <span class="font-bold text-blue-800 font-mono">Gs 40.000 ➔ Cont DW</span>
-          </div>
-          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg flex justify-between items-center">
-            <span class="font-medium text-slate-800">3. SIP Transferencia</span>
-            <span class="font-bold text-blue-800 font-mono">Gs 40.000 ➔ Cont DW</span>
-          </div>
-          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg flex justify-between items-center">
-            <span class="font-medium text-slate-800">4. SIP Transferencia</span>
-            <span class="font-bold text-blue-800 font-mono">Gs 40.000 ➔ Cont DW</span>
-          </div>
-          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg flex justify-between items-center">
-            <span class="font-medium text-slate-800">5. SIP Transferencia</span>
-            <span class="font-bold text-blue-800 font-mono">Gs 40.000 ➔ Cont DW</span>
-          </div>
-          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg flex justify-between items-center">
-            <span class="font-medium text-slate-800">6. SIP Transferencia</span>
-            <span class="font-bold text-blue-800 font-mono">Gs 40.000 ➔ Cont DW</span>
-          </div>
-          <div class="p-2.5 bg-blue-100/60 border border-blue-300 rounded-lg flex justify-between items-center">
-            <span class="font-medium text-slate-800">7. SIP Transferencia</span>
-            <span class="font-bold text-blue-900 font-mono">Gs 80.000 ➔ Cont DW</span>
-          </div>
-          <div class="p-2.5 bg-blue-100/60 border border-blue-300 rounded-lg flex justify-between items-center">
-            <span class="font-medium text-slate-800">8. SIP Transferencia</span>
-            <span class="font-bold text-blue-900 font-mono">Gs 80.000 ➔ Cont DW</span>
-          </div>
-          <div class="p-2.5 bg-amber-50 border border-amber-200 rounded-lg flex justify-between items-center">
-            <span class="font-medium text-slate-800">💵 Cobro en Efectivo en Mano:</span>
-            <span class="font-bold text-amber-900 font-mono">Gs 150.000</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Rendición de Efectivo -->
-      <div class="mt-4 p-3 bg-slate-100 rounded-xl text-xs space-y-1">
-        <div class="flex justify-between text-slate-600">
-          <span>Efectivo recaudado por Jazmín:</span>
-          <span>Gs 150.000</span>
-        </div>
-        <div class="flex justify-between text-purple-700 font-bold">
-          <span>- Comisión Jazmín (15%):</span>
-          <span>- Gs 82.500</span>
-        </div>
-        <div class="flex justify-between font-black text-slate-900 pt-1 border-t border-slate-200">
-          <span>Efectivo a entregar a Don Waldino:</span>
-          <span>Gs 67.500</span>
-        </div>
-      </div>
-
-      <div class="mt-6 flex justify-end">
-        <button onclick="closeModal('modalComprobantesSIP')" class="px-5 py-2.5 bg-slate-900 text-white font-bold rounded-xl text-xs">Cerrar</button>
       </div>
     </div>
   </div>
@@ -1515,7 +1415,7 @@
       comision: 82500, // 15% sobre Gs 550.000
       costoMesa: 35000, // Pagado por Don Waldino
       encargada: "Jazmín Rodríguez",
-      observacion: "Feria Plaza Italia 03/10. 14 frascos vendidos. Descuento autorizado por Waldi. Cuadre exacto: Gs 150.000 en efectivo + Gs 400.000 en 8 comprobantes SIP. Comisión Jazmín: Gs 82.500. Efectivo a entregar: Gs 67.500."
+      observacion: "Feria Plaza Italia 03/10. 14 frascos vendidos. Descuento autorizado por Waldi. Cuadre exacto: Gs 150.000 en efectivo + Gs 400.000 en 8 comprobantes SIP. Comisión Jazmín: Gs 82.500 (se paga por transferencia). Efectivo a entregar completo: Gs 150.000."
     };
 
     // Estado en memoria
@@ -1543,6 +1443,9 @@
       if (storedSales) {
         sales = JSON.parse(storedSales);
         // Si no contiene la feria 03/10, añadirla al registro
+        // Actualizar la observación de la feria 03/10 a la regla vigente (comisión por transferencia)
+        const f0310 = sales.find(s => s.id === "FERIA-0310");
+        if (f0310) f0310.observacion = HISTORICAL_FERIA_0310.observacion;
         if (!sales.some(s => s.id === "FERIA-0310")) {
           sales.push(HISTORICAL_FERIA_0310);
           saveSales();
@@ -1563,6 +1466,7 @@
       // Cargar degustaciones y cierres
       loadDegusts();
       loadCierres();
+      loadTrazas();
 
       // Establecer fecha de hoy en el formulario POS
       const today = todayLocal();
@@ -2645,6 +2549,7 @@ _Stock automático - Don Waldino_`;
         areguaRendiciones: areguaRendiciones,
         degustaciones: degustaciones,
         cierresFeria: cierresFeria,
+        trazasEfectivo: trazas,
         exportDate: new Date().toISOString()
       };
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
@@ -2672,6 +2577,8 @@ _Stock automático - Don Waldino_`;
             areguaRendiciones = data.areguaRendiciones || [];
             degustaciones = data.degustaciones || [];
             cierresFeria = data.cierresFeria || [];
+            trazas = data.trazasEfectivo || {};
+            saveTrazas();
             saveDegusts();
             saveCierres();
 
@@ -2712,6 +2619,21 @@ _Stock automático - Don Waldino_`;
        ======================================================== */
     const STORAGE_KEY_DEGUSTS = "dw_degusts_v1";
     const STORAGE_KEY_CIERRES = "dw_cierres_v1";
+    const STORAGE_KEY_TRAZAS = "dw_trazas_efectivo_v1";
+    // Trazabilidad por fecha de feria:
+    // { efectivo: { pasos: [{tipo:'entrega'|'deposito'|'otro', a, fecha, ref, registrado}] }, comision: { pagada, fecha, ref } }
+    let trazas = {};
+    function loadTrazas() {
+      try { trazas = JSON.parse(localStorage.getItem(STORAGE_KEY_TRAZAS)) || {}; } catch (e) { trazas = {}; }
+    }
+    function saveTrazas() {
+      localStorage.setItem(STORAGE_KEY_TRAZAS, JSON.stringify(trazas));
+    }
+    function getTraza(fecha) {
+      if (!trazas[fecha]) trazas[fecha] = { efectivo: { pasos: [] }, comision: { pagada: false } };
+      return trazas[fecha];
+    }
+    const CUENTA_DW = "Cuenta Don Waldino (Banco Continental)";
 
     /* ========================================================
        DEGUSTACIONES / CORTESÍAS
@@ -2941,7 +2863,17 @@ _Stock automático - Don Waldino_`;
       const efectivo = cierre ? cierre.efectivo : efectivoReg;
       const trans = cierre ? cierre.transferencias : transReg;
       const diferencia = (efectivo + trans) - total;
-      const aEntregar = efectivo - comision; // negativo = Don Waldino le debe a Jazmín
+      const aEntregar = efectivo; // regla: el efectivo se entrega completo; la comisión se transfiere aparte
+      const traza = trazas[fecha] || { efectivo: { pasos: [] }, comision: { pagada: false } };
+      const pasos = traza.efectivo.pasos || [];
+      const ultimo = pasos[pasos.length - 1] || null;
+      let efEstado, efTexto;
+      if (efectivo <= 0) { efEstado = "na"; efTexto = "Sin efectivo"; }
+      else if (!ultimo) { efEstado = "jazmin"; efTexto = "En poder de Jazmín"; }
+      else if (ultimo.tipo === "entrega") { efEstado = "entregado"; efTexto = "En poder de " + ultimo.a; }
+      else if (ultimo.tipo === "deposito") { efEstado = "cerrado"; efTexto = "Depositado ✔"; }
+      else { efEstado = "cerrado"; efTexto = "Cerrado: " + ultimo.a; }
+      const comPagada = comision <= 0 || !!(traza.comision && traza.comision.pagada);
       const mesa = (cierre && cierre.costoMesa != null) ? cierre.costoMesa : (ventas.length ? COSTO_MESA : 0);
       const degusts = degustaciones.filter(d => d.punto === "feria" && d.fecha === fecha);
 
@@ -2949,6 +2881,7 @@ _Stock automático - Don Waldino_`;
         fecha, ventas, cierre, cerrada: isFeriaCerrada(fecha), total, comision,
         lineas: Object.values(lineas), frascos, efectivo, trans, efectivoReg, transReg,
         comprobantes, diferencia, aEntregar, mesa, neto: total - comision - mesa, degusts,
+        pasos, efEstado, efTexto, comPagada, comisionPago: traza.comision || { pagada: false },
         observaciones: cierre ? cierre.observaciones : (ventas.find(v => v.observacion) || {}).observacion || ""
       };
     }
@@ -2991,6 +2924,7 @@ _Stock automático - Don Waldino_`;
               <span class="text-emerald-700 font-bold">Neto Don Waldino:</span>
               <span class="font-black text-emerald-800">${formatGs(r.neto)}</span>
             </div>
+            <div class="mt-2 flex flex-wrap gap-1">${estadoBadges(r)}</div>
             <button onclick="showResumenFeria('${f}')" class="mt-2 w-full bg-slate-900 hover:bg-slate-700 text-white font-bold text-xs py-1.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="receipt" class="w-3.5 h-3.5"></i> Ver resumen</button>
           </div>`;
         }
@@ -3026,7 +2960,112 @@ _Stock automático - Don Waldino_`;
           </div>`;
       }
       grid.innerHTML = html;
+      renderFeriaPendientes();
       lucide.createIcons();
+    }
+
+    function estadoBadges(r) {
+      const ef = {
+        na: ["bg-slate-100 text-slate-500", "💵 Sin efectivo"],
+        jazmin: ["bg-red-100 text-red-800", "💵 Efectivo en poder de Jazmín"],
+        entregado: ["bg-amber-100 text-amber-900", "💵 " + r.efTexto + " — falta depositar"],
+        cerrado: ["bg-emerald-100 text-emerald-800", "💵 " + r.efTexto]
+      }[r.efEstado];
+      const com = r.comPagada ? ["bg-emerald-100 text-emerald-800", "💸 Comisión transferida ✔"] : ["bg-purple-100 text-purple-800", "💸 Comisión por transferir"];
+      return [ef, com].map(([c, t]) => `<span class="${c} text-[10px] font-bold px-2 py-0.5 rounded-full">${t}</span>`).join("");
+    }
+
+    // Panel: efectivo sin depositar y comisiones sin transferir
+    function renderFeriaPendientes() {
+      const cont = document.getElementById("feria-pendientes");
+      if (!cont) return;
+      const rs = getFeriaFechas().filter(f => isFeriaCerrada(f)).map(f => buildFeriaResumen(f));
+      const efPend = rs.filter(r => r.efEstado === "jazmin" || r.efEstado === "entregado");
+      const comPend = rs.filter(r => !r.comPagada);
+      if (!efPend.length && !comPend.length) {
+        cont.innerHTML = `<div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-800">✅ Todo el efectivo de ferias cerradas está depositado y todas las comisiones están transferidas.</div>`;
+        return;
+      }
+      const totEf = efPend.reduce((a, r) => a + r.efectivo, 0);
+      const totCom = comPend.reduce((a, r) => a + r.comision, 0);
+      cont.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs">
+            <div class="flex justify-between font-black text-amber-900"><span>💵 Efectivo sin depositar</span><span>${formatGs(totEf)}</span></div>
+            ${efPend.length ? efPend.map(r => `
+              <button onclick="showResumenFeria('${r.fecha}')" class="mt-1.5 w-full flex justify-between items-center bg-white border border-amber-200 rounded-lg px-2 py-1.5 hover:bg-amber-100 text-left">
+                <span>${fmtFecha(r.fecha)} — <b>${r.efTexto}</b></span><span class="font-bold">${formatGs(r.efectivo)} ›</span>
+              </button>`).join("") : `<p class="text-amber-700 mt-1">Nada pendiente.</p>`}
+          </div>
+          <div class="p-3 bg-purple-50 border border-purple-300 rounded-xl text-xs">
+            <div class="flex justify-between font-black text-purple-900"><span>💸 Comisiones por transferir a Jazmín</span><span>${formatGs(totCom)}</span></div>
+            ${comPend.length ? comPend.map(r => `
+              <button onclick="showResumenFeria('${r.fecha}')" class="mt-1.5 w-full flex justify-between items-center bg-white border border-purple-200 rounded-lg px-2 py-1.5 hover:bg-purple-100 text-left">
+                <span>Feria ${fmtFecha(r.fecha)}</span><span class="font-bold">${formatGs(r.comision)} ›</span>
+              </button>`).join("") : `<p class="text-purple-700 mt-1">Nada pendiente.</p>`}
+          </div>
+        </div>`;
+    }
+
+    // ---- Registro de movimientos del efectivo y pago de comisión ----
+    function registrarPasoEfectivo(fecha) {
+      const tipo = document.getElementById("traza-tipo").value;
+      const fechaMov = document.getElementById("traza-fecha").value || todayLocal();
+      const ref = document.getElementById("traza-ref").value.trim();
+      let a;
+      if (tipo === "entrega") {
+        a = document.getElementById("traza-persona").value;
+        if (a === "Otro") a = document.getElementById("traza-persona-otro").value.trim();
+        if (!a) { alert("Indicá a quién se entregó el efectivo."); return; }
+      } else if (tipo === "deposito") {
+        a = CUENTA_DW;
+      } else {
+        a = ref;
+        if (!a) { alert("Detallá qué se hizo con el efectivo."); return; }
+      }
+      const t = getTraza(fecha);
+      t.efectivo.pasos.push({ tipo, a, fecha: fechaMov, ref, registrado: new Date().toISOString() });
+      saveTrazas();
+      renderAll();
+      showResumenFeria(fecha);
+      showToast(tipo === "deposito" ? "✅ Depósito registrado. Efectivo de la feria cerrado." : "Movimiento de efectivo registrado.");
+    }
+
+    function deshacerPasoEfectivo(fecha) {
+      const t = getTraza(fecha);
+      const ult = t.efectivo.pasos[t.efectivo.pasos.length - 1];
+      if (!ult) return;
+      if (!confirm(`¿Deshacer el último movimiento (${ult.tipo === "entrega" ? "entrega a " + ult.a : ult.a})?`)) return;
+      t.efectivo.pasos.pop();
+      saveTrazas();
+      renderAll();
+      showResumenFeria(fecha);
+    }
+
+    function registrarPagoComision(fecha) {
+      const fechaPago = document.getElementById("com-fecha").value || todayLocal();
+      const ref = document.getElementById("com-ref").value.trim();
+      const t = getTraza(fecha);
+      t.comision = { pagada: true, fecha: fechaPago, ref, registrado: new Date().toISOString() };
+      saveTrazas();
+      renderAll();
+      showResumenFeria(fecha);
+      showToast("✅ Transferencia de comisión registrada.");
+    }
+
+    function deshacerPagoComision(fecha) {
+      if (!confirm("¿Marcar la comisión como NO transferida?")) return;
+      getTraza(fecha).comision = { pagada: false };
+      saveTrazas();
+      renderAll();
+      showResumenFeria(fecha);
+    }
+
+    function onTrazaTipoChange() {
+      const tipo = document.getElementById("traza-tipo").value;
+      document.getElementById("traza-persona-wrap").classList.toggle("hidden", tipo !== "entrega");
+      const ref = document.getElementById("traza-ref");
+      ref.placeholder = tipo === "deposito" ? "N° de boleta / comprobante de depósito" : tipo === "otro" ? "¿Qué se hizo con el efectivo? (obligatorio)" : "Nota (opcional)";
     }
 
     function goVentaFeria(fecha) {
@@ -3051,6 +3090,10 @@ _Stock automático - Don Waldino_`;
       cierreFechaPreset = null;
       prefillCierreMontos();
       document.getElementById("cierre-obs").value = "";
+      document.getElementById("cierre-entregado-a").value = "Dany";
+      document.getElementById("cierre-entregado-otro").value = "";
+      document.getElementById("cierre-entregado-otro").classList.add("hidden");
+      document.getElementById("cierre-entrega-fecha").value = todayLocal();
       recalcCierreFeria();
     }
 
@@ -3071,7 +3114,7 @@ _Stock automático - Don Waldino_`;
       const comision = r.comision;
       const gananciaNeta = totalVentas - comision - COSTO_MESA;
       const diferencia = (efectivoIngresado + transIngresado) - totalVentas;
-      const efectivoAEntregar = efectivoIngresado - comision;
+      const efectivoAEntregar = efectivoIngresado;
       const totalDegustUnids = r.degusts.reduce((acc, d) => acc + d.cantidad, 0);
 
       const resumenContainer = document.getElementById("cierre-resumen-ventas");
@@ -3106,9 +3149,7 @@ _Stock automático - Don Waldino_`;
       const diffEl = document.getElementById("cierre-calc-diff");
       diffEl.innerText = formatGs(Math.abs(diferencia)) + (diferencia === 0 ? " ✅ Cuadra" : (diferencia > 0 ? " ⬆️ Sobrante" : " ⬇️ Faltante"));
       diffEl.className = `font-bold ${diferencia === 0 ? 'text-emerald-400' : diferencia > 0 ? 'text-blue-400' : 'text-red-400'}`;
-      document.getElementById("cierre-calc-aentregar-label").innerText = efectivoAEntregar >= 0
-        ? "💵 Efectivo a entregar a Don Waldino:" : "💵 Don Waldino le debe a Jazmín:";
-      document.getElementById("cierre-calc-aentregar").innerText = formatGs(Math.abs(efectivoAEntregar));
+      document.getElementById("cierre-calc-aentregar").innerText = formatGs(efectivoAEntregar);
       document.getElementById("cierre-calc-degusts").innerText = totalDegustUnids + " uds";
       document.getElementById("cierre-calc-net").innerText = formatGs(gananciaNeta);
     }
@@ -3134,7 +3175,8 @@ _Stock automático - Don Waldino_`;
         comision: r.comision,
         efectivo: efectivoIngresado,
         transferencias: transIngresado,
-        efectivoAEntregar: efectivoIngresado - r.comision,
+        efectivoAEntregar: efectivoIngresado,
+        comisionAPagarPorTransferencia: r.comision,
         costoMesa: COSTO_MESA,
         gananciaNeta: r.total - r.comision - COSTO_MESA,
         frascos: r.frascos,
@@ -3152,6 +3194,15 @@ _Stock automático - Don Waldino_`;
       cierresFeria.unshift(cierre);
       cierresFeria.sort((a, b) => b.fecha.localeCompare(a.fecha));
       saveCierres();
+
+      // Registrar a quién se entregó el efectivo (si corresponde y aún no hay movimientos)
+      let receptor = document.getElementById("cierre-entregado-a").value;
+      if (receptor === "Otro") receptor = document.getElementById("cierre-entregado-otro").value.trim();
+      const t = getTraza(fechaVal);
+      if (receptor && efectivoIngresado > 0 && t.efectivo.pasos.length === 0) {
+        t.efectivo.pasos.push({ tipo: "entrega", a: receptor, fecha: document.getElementById("cierre-entrega-fecha").value || todayLocal(), ref: "", registrado: new Date().toISOString() });
+      }
+      saveTrazas();
 
       closeModal("modalCierreFeria");
       renderAll();
@@ -3182,9 +3233,10 @@ _Stock automático - Don Waldino_`;
             <span>Comisión Jazmín (15%):</span><span class="font-bold text-purple-700">${formatGs(r.comision)}</span>
             <span>Efectivo rendido:</span><span class="font-bold">${formatGs(r.efectivo)}</span>
             <span>Transferencias / POS:</span><span class="font-bold">${formatGs(r.trans)}</span>
-            <span>${r.aEntregar >= 0 ? "Efectivo a Don Waldino:" : "DW le debe a Jazmín:"}</span><span class="font-bold text-emerald-700">${formatGs(Math.abs(r.aEntregar))}</span>
+            <span>Efectivo (se entrega completo):</span><span class="font-bold text-emerald-700">${formatGs(r.efectivo)}</span>
             <span>Ganancia Neta Don Waldino:</span><span class="font-bold text-emerald-700">${formatGs(r.neto)}</span>
           </div>
+          <div class="mt-2 flex flex-wrap gap-1">${estadoBadges(r)}</div>
           ${c.observaciones ? `<p class="text-slate-400 text-[10px] mt-1 italic">${c.observaciones}</p>` : ''}
           <div class="mt-2 flex gap-2">
             <button onclick="showResumenFeria('${c.fecha}')" class="flex-1 py-1.5 bg-slate-900 text-white font-bold rounded-lg text-[11px]">Ver resumen</button>
@@ -3266,16 +3318,80 @@ _Stock automático - Don Waldino_`;
         ${r.degusts.map(d => `<div class="text-orange-700">${d.cantidad}x ${d.productName} — ${d.motivo}</div>`).join("")}
       </div>` : ""}
 
-      <div class="mt-4 p-3 bg-slate-100 rounded-xl text-xs space-y-1">
-        <div class="flex justify-between text-slate-600"><span>Efectivo recaudado por Jazmín:</span><span>${formatGs(r.efectivo)}</span></div>
-        <div class="flex justify-between text-purple-700 font-bold"><span>- Comisión Jazmín (15%):</span><span>- ${formatGs(r.comision)}</span></div>
-        <div class="flex justify-between font-black text-slate-900 pt-1 border-t border-slate-200">
-          <span>${r.aEntregar >= 0 ? "Efectivo a entregar a Don Waldino:" : "Don Waldino le debe a Jazmín:"}</span><span>${formatGs(Math.abs(r.aEntregar))}</span>
-        </div>
-      </div>
+      ${r.cerrada ? renderTrazaHtml(r) : `
+      <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900">
+        Feria abierta: al cerrarla se registra a quién se entrega el efectivo (${formatGs(r.efectivoReg)}) y queda pendiente la transferencia de la comisión (${formatGs(r.comision)}).
+      </div>`}
       ${r.observaciones ? `<p class="mt-3 text-[11px] text-slate-500 italic">📝 ${r.observaciones}</p>` : ""}`;
       document.getElementById("resumen-feria-wa").onclick = () => sendFeriaWhatsAppReport(fecha);
       openModal("modalResumenFeria");
+    }
+
+    function renderTrazaHtml(r) {
+      const f = r.fecha;
+      const pasoHtml = (icon, titulo, detalle, color) => `
+        <div class="flex gap-2 items-start">
+          <span class="w-6 h-6 shrink-0 rounded-full ${color} flex items-center justify-center text-[11px]">${icon}</span>
+          <div><div class="font-bold text-slate-800">${titulo}</div>${detalle ? `<div class="text-slate-500 text-[11px]">${detalle}</div>` : ""}</div>
+        </div>`;
+      let ef = "";
+      if (r.efectivo > 0) {
+        const pasos = [pasoHtml("1", `Recaudado por Jazmín: ${formatGs(r.efectivo)}`, `Feria ${fmtFecha(f)}`, "bg-slate-200")];
+        r.pasos.forEach((p, i) => {
+          if (p.tipo === "entrega") pasos.push(pasoHtml(i + 2, `Entregado a: ${p.a}`, `${fmtFecha(p.fecha)}${p.ref ? " · " + p.ref : ""}`, "bg-amber-200"));
+          else if (p.tipo === "deposito") pasos.push(pasoHtml("✔", `Depositado en ${p.a}`, `${fmtFecha(p.fecha)}${p.ref ? " · Comprobante: " + p.ref : ""}`, "bg-emerald-300"));
+          else pasos.push(pasoHtml("✔", `Otro destino: ${p.a}`, fmtFecha(p.fecha), "bg-blue-200"));
+        });
+        const cerrado = r.efEstado === "cerrado";
+        ef = `
+        <div class="mt-4 p-3 bg-white border-2 ${cerrado ? "border-emerald-300" : "border-amber-300"} rounded-xl text-xs">
+          <div class="flex justify-between items-center mb-2">
+            <h4 class="font-black text-slate-900 uppercase tracking-wider text-[11px]">💵 Trazabilidad del efectivo</h4>
+            <span class="${cerrado ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-900"} text-[10px] font-black px-2 py-0.5 rounded-full">${cerrado ? "CERRADO" : "ABIERTO"}</span>
+          </div>
+          <div class="space-y-2">${pasos.join("")}</div>
+          ${cerrado ? "" : `
+          <div class="mt-3 pt-3 border-t border-slate-200 space-y-2">
+            <div class="font-bold text-slate-700">Registrar siguiente movimiento (${r.efTexto}):</div>
+            <select id="traza-tipo" onchange="onTrazaTipoChange()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-bold">
+              ${r.efEstado === "entregado" ? `<option value="deposito">🏦 Depositado en ${CUENTA_DW}</option>` : ""}
+              <option value="entrega">🤝 Entregado a otra persona</option>
+              ${r.efEstado === "jazmin" ? `<option value="deposito">🏦 Jazmín lo depositó en ${CUENTA_DW}</option>` : ""}
+              <option value="otro">📝 Otro destino (detallar)</option>
+            </select>
+            <div id="traza-persona-wrap" class="${r.efEstado === "entregado" ? "hidden" : ""} grid grid-cols-2 gap-2">
+              <select id="traza-persona" onchange="document.getElementById('traza-persona-otro').classList.toggle('hidden', this.value !== 'Otro')" class="bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-bold">
+                <option>Dany</option><option>Waldi</option><option value="Otro">Otro…</option>
+              </select>
+              <input id="traza-persona-otro" placeholder="Nombre" class="hidden bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <input type="date" id="traza-fecha" value="${todayLocal()}" class="bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs">
+              <input id="traza-ref" placeholder="${r.efEstado === "entregado" ? "N° de boleta / comprobante de depósito" : "Nota (opcional)"}" class="bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs">
+            </div>
+            <button onclick="registrarPasoEfectivo('${f}')" class="w-full py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-lg">Registrar movimiento</button>
+          </div>`}
+          ${r.pasos.length ? `<button onclick="deshacerPasoEfectivo('${f}')" class="mt-2 text-[10px] text-slate-400 underline">Deshacer último movimiento</button>` : ""}
+        </div>`;
+      }
+      const cp = r.comisionPago;
+      const com = r.comision > 0 ? `
+        <div class="mt-3 p-3 bg-white border-2 ${r.comPagada ? "border-emerald-300" : "border-purple-300"} rounded-xl text-xs">
+          <div class="flex justify-between items-center">
+            <h4 class="font-black text-slate-900 uppercase tracking-wider text-[11px]">💸 Comisión Jazmín (15%) — por transferencia</h4>
+            <span class="font-black text-purple-700">${formatGs(r.comision)}</span>
+          </div>
+          ${r.comPagada ? `
+          <p class="mt-1 text-emerald-700 font-bold">✔ Transferida el ${fmtFecha(cp.fecha)}${cp.ref ? " · Ref: " + cp.ref : ""}</p>
+          <button onclick="deshacerPagoComision('${f}')" class="mt-1 text-[10px] text-slate-400 underline">Deshacer</button>` : `
+          <p class="mt-1 text-purple-800">Pendiente de transferir. No se descuenta del efectivo.</p>
+          <div class="mt-2 grid grid-cols-2 gap-2">
+            <input type="date" id="com-fecha" value="${todayLocal()}" class="bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs">
+            <input id="com-ref" placeholder="N° de transferencia (opcional)" class="bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs">
+          </div>
+          <button onclick="registrarPagoComision('${f}')" class="mt-2 w-full py-2 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-lg">Registrar transferencia de comisión</button>`}
+        </div>` : "";
+      return ef + com;
     }
 
     function buildFeriaWhatsApp(fecha) {
@@ -3296,8 +3412,9 @@ ${prods || "Sin ventas"}
 • Cuadre: ${r.diferencia === 0 ? "✅ OK" : (r.diferencia > 0 ? "⬆️ Sobrante " : "⬇️ Faltante ") + formatGs(Math.abs(r.diferencia))}
 
 📊 *LIQUIDACIÓN:*
-• Comisión Jazmín (15%): *${formatGs(r.comision)}*
-• ${r.aEntregar >= 0 ? "Efectivo a entregar a Don Waldino" : "Don Waldino le debe a Jazmín"}: *${formatGs(Math.abs(r.aEntregar))}*
+• Comisión Jazmín (15%): *${formatGs(r.comision)}* — por transferencia ${r.comPagada ? "✅ pagada" + (r.comisionPago.fecha ? " " + fmtFecha(r.comisionPago.fecha) : "") : "⏳ pendiente"}
+• Efectivo a entregar (completo): *${formatGs(r.efectivo)}*
+• Estado del efectivo: ${r.pasos.length ? r.pasos.map(p => p.tipo === "entrega" ? "entregado a " + p.a + " (" + fmtFecha(p.fecha) + ")" : p.tipo === "deposito" ? "depositado en cuenta DW (" + fmtFecha(p.fecha) + (p.ref ? ", comp. " + p.ref : "") + ") ✅" : "otro destino: " + p.a).join(" ➔ ") : "en poder de Jazmín"}
 • Costo Mesa: ${formatGs(r.mesa)} _(Asumido x Don Waldino)_
 • 📈 *Ganancia Neta Don Waldino:* *${formatGs(r.neto)}*${r.degusts.length ? `\n\n🍽️ Degustaciones: ${r.degusts.map(d => d.cantidad + "x " + d.productName).join(", ")}` : ""}${r.observaciones ? `\n\n📝 ${r.observaciones}` : ""}
 
