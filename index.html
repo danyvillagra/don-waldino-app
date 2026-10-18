@@ -1,0 +1,3309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Don Waldino - Sistema de Gestión y Ventas</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#b91c1c">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            chili: {
+              50: '#fef2f2',
+              100: '#fee2e2',
+              200: '#fecaca',
+              500: '#ef4444',
+              600: '#dc2626',
+              700: '#b91c1c',
+              800: '#991b1b',
+              900: '#7f1d1d',
+            },
+            amberBrand: {
+              500: '#f59e0b',
+              600: '#d97706',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Estilos mobile first y utilitarios */
+    body {
+      -webkit-tap-highlight-color: transparent;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .badge-pack {
+      background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+    }
+    /* Animación sutil de feedback */
+    @keyframes popIn {
+      0% { transform: scale(0.95); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-pop {
+      animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 pb-24 md:pb-8 antialiased select-none">
+
+  <!-- ENCABEZADO SUPERIOR -->
+  <header class="bg-gradient-to-r from-chili-800 via-chili-700 to-chili-900 text-white shadow-lg sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-2xl shadow-inner">
+          🌶️
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-lg leading-tight tracking-wide">Don Waldino</h1>
+            <span class="text-[10px] bg-amber-400 text-slate-900 font-bold px-1.5 py-0.5 rounded">App Ventas</span>
+          </div>
+          <p class="text-xs text-red-200 flex items-center gap-1">
+            <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+            Encargada: <span class="font-semibold text-white">Jazmín Rodríguez</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Acciones de cabecera -->
+      <div class="flex items-center space-x-2">
+        <button onclick="openModal('modalSync')" title="Copia de seguridad / Datos" class="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-white">
+          <i data-lucide="database" class="w-5 h-5"></i>
+        </button>
+        <button onclick="renderAll()" title="Recargar vista" class="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-white">
+          <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navegación por pestañas (Desktop & tablet) -->
+    <nav class="hidden md:flex max-w-7xl mx-auto px-4 border-t border-chili-600/50 overflow-x-auto hide-scrollbar">
+      <button onclick="switchTab('dashboard')" class="tab-btn py-3 px-4 font-semibold text-sm border-b-2 border-white text-white flex items-center gap-2" data-tab="dashboard">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Panel General
+      </button>
+      <button onclick="switchTab('pos')" class="tab-btn py-3 px-4 font-semibold text-sm border-b-2 border-transparent text-red-200 hover:text-white flex items-center gap-2" data-tab="pos">
+        <i data-lucide="shopping-cart" class="w-4 h-4"></i> Registrar Venta
+      </button>
+      <button onclick="switchTab('stock')" class="tab-btn py-3 px-4 font-semibold text-sm border-b-2 border-transparent text-red-200 hover:text-white flex items-center gap-2" data-tab="stock">
+        <i data-lucide="boxes" class="w-4 h-4"></i> Stock Central (CP)
+      </button>
+      <button onclick="switchTab('ferias')" class="tab-btn py-3 px-4 font-semibold text-sm border-b-2 border-transparent text-red-200 hover:text-white flex items-center gap-2" data-tab="ferias">
+        <i data-lucide="tent" class="w-4 h-4"></i> Ferias (15%)
+      </button>
+      <button onclick="switchTab('cp')" class="tab-btn py-3 px-4 font-semibold text-sm border-b-2 border-transparent text-red-200 hover:text-white flex items-center gap-2" data-tab="cp">
+        <i data-lucide="factory" class="w-4 h-4"></i> Ventas CP (10%)
+      </button>
+      <button onclick="switchTab('aregua')" class="tab-btn py-3 px-4 font-semibold text-sm border-b-2 border-transparent text-red-200 hover:text-white flex items-center gap-2" data-tab="aregua">
+        <i data-lucide="map-pin" class="w-4 h-4"></i> Areguá
+      </button>
+      <button onclick="switchTab('history')" class="tab-btn py-3 px-4 font-semibold text-sm border-b-2 border-transparent text-red-200 hover:text-white flex items-center gap-2" data-tab="history">
+        <i data-lucide="history" class="w-4 h-4"></i> Historial
+      </button>
+    </nav>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <main class="max-w-7xl mx-auto p-3 md:p-6 space-y-6">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: PANEL GENERAL (DASHBOARD)           -->
+    <!-- ========================================== -->
+    <section id="tab-dashboard" class="tab-content space-y-6">
+      <!-- Banner superior de bienvenida y acciones rápidas -->
+      <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-4 md:p-6 text-white shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider">
+            <i data-lucide="trending-up" class="w-4 h-4"></i> Resumen Integral del Negocio
+          </div>
+          <h2 class="text-xl md:text-2xl font-black mt-1">Panel de Control General</h2>
+          <p class="text-slate-300 text-xs md:text-sm mt-0.5">Control de stock valorizado, ventas por punto, comisiones de Jazmín y rentabilidad.</p>
+        </div>
+        <div class="flex flex-wrap gap-2 w-full md:w-auto">
+          <button onclick="sendGeneralWhatsAppReport()" class="flex-1 md:flex-initial bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2.5 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm">
+            <i data-lucide="message-circle" class="w-5 h-5"></i>
+            WhatsApp Reporte General
+          </button>
+          <button onclick="switchTab('pos')" class="flex-1 md:flex-initial bg-chili-600 hover:bg-chili-500 text-white font-bold px-4 py-2.5 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm">
+            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+            Nueva Venta
+          </button>
+        </div>
+      </div>
+
+      <!-- TARJETAS DE VALORIZACIÓN DE STOCK (100% y -20%) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Stock Valorizado 100% -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 relative overflow-hidden">
+          <div class="absolute -right-3 -top-3 w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 opacity-60">
+            <i data-lucide="badge-dollar-sign" class="w-8 h-8"></i>
+          </div>
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Stock Central (100% Venta)</p>
+          <h3 id="dash-stock-value-100" class="text-2xl font-black text-slate-900 mt-2">Gs 0</h3>
+          <p class="text-xs text-blue-600 mt-1 font-medium flex items-center gap-1">
+            <i data-lucide="box" class="w-3.5 h-3.5"></i> <span id="dash-stock-total-units">0</span> unidades disponibles
+          </p>
+        </div>
+
+        <!-- Stock Valorizado con -20% -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-emerald-200 relative overflow-hidden bg-gradient-to-br from-emerald-50/40 to-white">
+          <div class="absolute -right-3 -top-3 w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 opacity-70">
+            <i data-lucide="calculator" class="w-8 h-8"></i>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <p class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Estimado Stock (-20%)</p>
+            <span class="bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded">Margen/Base</span>
+          </div>
+          <h3 id="dash-stock-value-80" class="text-2xl font-black text-emerald-700 mt-2">Gs 0</h3>
+          <p class="text-xs text-slate-500 mt-1">Cálculo al 80% del valor total de góndola.</p>
+        </div>
+
+        <!-- Total Ventas Registradas (Global) -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 relative overflow-hidden">
+          <div class="absolute -right-3 -top-3 w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 opacity-60">
+            <i data-lucide="shopping-bag" class="w-8 h-8"></i>
+          </div>
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Ventas Registradas</p>
+          <h3 id="dash-total-sales" class="text-2xl font-black text-slate-900 mt-2">Gs 0</h3>
+          <p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+            <span id="dash-sales-count" class="font-bold text-slate-700">0</span> transacciones registradas
+          </p>
+        </div>
+
+        <!-- Total Comisiones Jazmín Rodríguez -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-purple-200 relative overflow-hidden bg-gradient-to-br from-purple-50/40 to-white">
+          <div class="absolute -right-3 -top-3 w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 opacity-70">
+            <i data-lucide="award" class="w-8 h-8"></i>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <p class="text-xs font-bold text-purple-800 uppercase tracking-wider">Comisiones Jazmín</p>
+            <span class="bg-purple-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded">A pagar</span>
+          </div>
+          <h3 id="dash-total-commissions" class="text-2xl font-black text-purple-700 mt-2">Gs 0</h3>
+          <p class="text-xs text-purple-900 mt-1">Ferias (15%) + CP (10%)</p>
+        </div>
+      </div>
+
+      <!-- DESGLOSE COMPARATIVO POR LOS 3 PUNTOS DE VENTA -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+          <div>
+            <h3 class="font-black text-base md:text-lg text-slate-800 flex items-center gap-2">
+              <i data-lucide="pie-chart" class="w-5 h-5 text-chili-600"></i>
+              Ventas Diferenciadas por Punto de Venta
+            </h3>
+            <p class="text-xs text-slate-500">Separación clara de ingresos, comisiones aplicables y reporte por canal.</p>
+          </div>
+          <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2.5 py-1 rounded-full">3 Canales Activos</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+          <!-- Punto 1: Ferias Plaza Italia -->
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-chili-300 transition">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-800">Sábados Plaza Italia</span>
+                <span class="text-xs font-bold text-chili-700">Comisión 15%</span>
+              </div>
+              <h4 class="font-extrabold text-slate-800 mt-2 text-base">🎪 Ferias</h4>
+              <div class="mt-3 space-y-1.5 text-xs">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Ventas Totales:</span>
+                  <span id="dash-feria-sales" class="font-bold text-slate-800">Gs 0</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Comisión Jazmín (15%):</span>
+                  <span id="dash-feria-comm" class="font-bold text-purple-700">Gs 0</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Costo Mesas (Don Waldino):</span>
+                  <span id="dash-feria-mesa" class="font-bold text-slate-600">Gs 0</span>
+                </div>
+                <div class="flex justify-between pt-1 border-t border-slate-200">
+                  <span class="text-slate-700 font-bold">Rendimiento Neto Feria:</span>
+                  <span id="dash-feria-net" class="font-bold text-emerald-700">Gs 0</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-200 flex gap-2">
+              <button onclick="switchTab('ferias')" class="flex-1 py-1.5 text-xs bg-white border border-slate-300 hover:bg-slate-100 font-bold text-slate-700 rounded-lg">
+                Ver Feria
+              </button>
+              <button onclick="sendFeriaWhatsAppReport()" class="p-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg" title="WhatsApp Reporte Feria">
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Punto 2: Centro de Producción (CP) -->
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-chili-300 transition">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-blue-800">Directa / Redes / Web</span>
+                <span class="text-xs font-bold text-blue-700">Comisión 10%</span>
+              </div>
+              <h4 class="font-extrabold text-slate-800 mt-2 text-base">🏭 Centro de Producción (CP)</h4>
+              <div class="mt-3 space-y-1.5 text-xs">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Ventas Directas:</span>
+                  <span id="dash-cp-directa" class="font-bold text-slate-800">Gs 0</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Ventas Redes Sociales:</span>
+                  <span id="dash-cp-redes" class="font-bold text-slate-800">Gs 0</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Ventas Página WEB:</span>
+                  <span id="dash-cp-web" class="font-bold text-slate-800">Gs 0</span>
+                </div>
+                <div class="flex justify-between pt-1 border-t border-slate-200">
+                  <span class="text-slate-700 font-bold">Total CP:</span>
+                  <span id="dash-cp-total" class="font-bold text-slate-900">Gs 0</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-purple-700 font-bold">Comisión Jazmín (10%):</span>
+                  <span id="dash-cp-comm" class="font-bold text-purple-700">Gs 0</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-200 flex gap-2">
+              <button onclick="switchTab('cp')" class="flex-1 py-1.5 text-xs bg-white border border-slate-300 hover:bg-slate-100 font-bold text-slate-700 rounded-lg">
+                Ver CP
+              </button>
+              <button onclick="sendCPWhatsAppReport()" class="p-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg" title="WhatsApp Reporte Semanal CP">
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Punto 3: Areguá -->
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-chili-300 transition">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-purple-100 text-purple-800">Consignación / Lotes</span>
+                <span class="text-xs font-bold text-slate-500">Quincenal</span>
+              </div>
+              <h4 class="font-extrabold text-slate-800 mt-2 text-base">🏺 Ventas Areguá</h4>
+              <div class="mt-3 space-y-1.5 text-xs">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Lotes Entregados:</span>
+                  <span class="font-bold text-amber-700">13/09 y 08/10 (Pendientes)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Stock Total en Areguá:</span>
+                  <span id="dash-aregua-stock-qty" class="font-bold text-slate-800">54 unids.</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Valor Stock en Areguá:</span>
+                  <span id="dash-aregua-stock-val" class="font-bold text-slate-800">Gs 0</span>
+                </div>
+                <div class="flex justify-between pt-1 border-t border-slate-200">
+                  <span class="text-slate-700 font-bold">Ventas Rendidas:</span>
+                  <span id="dash-aregua-sales" class="font-bold text-emerald-700">Gs 0</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-200 flex gap-2">
+              <button onclick="switchTab('aregua')" class="flex-1 py-1.5 text-xs bg-white border border-slate-300 hover:bg-slate-100 font-bold text-slate-700 rounded-lg">
+                Ver Lotes
+              </button>
+              <button onclick="sendAreguaWhatsAppReport()" class="p-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg" title="WhatsApp Reporte Areguá">
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESUMEN MENSUAL Y BALANCE -->
+      <div class="bg-gradient-to-br from-white to-slate-50 rounded-2xl p-5 shadow-sm border border-slate-200">
+        <h3 class="font-black text-base md:text-lg text-slate-800 flex items-center gap-2 mb-4">
+          <i data-lucide="wallet" class="w-5 h-5 text-emerald-600"></i>
+          Resumen Financiero del Mes
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="p-3 bg-white rounded-xl border border-slate-200">
+            <span class="text-[11px] font-semibold text-slate-500">Total Ingresos Ventas</span>
+            <p id="dash-fin-total-sales" class="text-lg md:text-xl font-black text-slate-900 mt-1">Gs 0</p>
+          </div>
+          <div class="p-3 bg-white rounded-xl border border-slate-200">
+            <span class="text-[11px] font-semibold text-purple-700">Total Comisiones Jazmín</span>
+            <p id="dash-fin-commissions" class="text-lg md:text-xl font-black text-purple-700 mt-1">Gs 0</p>
+          </div>
+          <div class="p-3 bg-white rounded-xl border border-slate-200">
+            <span class="text-[11px] font-semibold text-slate-500">Gastos Mesas (Don Waldino)</span>
+            <p id="dash-fin-mesas" class="text-lg md:text-xl font-black text-slate-700 mt-1">Gs 0</p>
+          </div>
+          <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+            <span class="text-[11px] font-bold text-emerald-800">Saldo Neto para Don Waldino</span>
+            <p id="dash-fin-saldo" class="text-lg md:text-xl font-black text-emerald-700 mt-1">Gs 0</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: REGISTRAR VENTA (POS / APP MOVIL)   -->
+    <!-- ========================================== -->
+    <section id="tab-pos" class="tab-content hidden space-y-6">
+      <div class="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-slate-200">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div>
+            <span class="text-xs font-bold text-chili-600 uppercase tracking-wider">Terminal de Ventas</span>
+            <h2 class="text-xl md:text-2xl font-black text-slate-900">Registrar Venta de Productos o Packs</h2>
+          </div>
+          <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Stock Automático
+          </span>
+        </div>
+
+        <!-- FORMULARIO DE DETALLES DE VENTA -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <!-- 1. Punto de Venta -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              📍 Punto de Venta <span class="text-red-500">*</span>
+            </label>
+            <select id="pos-punto" onchange="handlePuntoChange()" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-chili-500 focus:outline-none">
+              <option value="feria">🎪 Ferias (Plaza Italia - 15% Comisión)</option>
+              <option value="cp">🏭 Centro de Producción (CP - 10% Comisión)</option>
+              <option value="aregua">🏺 Ventas Areguá</option>
+            </select>
+          </div>
+
+          <!-- 2. Canal de Venta (Específico si es CP) -->
+          <div id="pos-canal-container" class="hidden">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              🌐 Canal de CP <span class="text-red-500">*</span>
+            </label>
+            <select id="pos-canal" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-chili-500 focus:outline-none">
+              <option value="directa">Venta Directa</option>
+              <option value="redes">Venta en Redes Sociales</option>
+              <option value="web">Venta en Página WEB</option>
+            </select>
+          </div>
+
+          <!-- 3. Medio de Pago (OBLIGATORIO) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              💳 Medio de Pago <span class="text-red-500">*</span>
+            </label>
+            <select id="pos-metodo-pago" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-chili-500 focus:outline-none">
+              <option value="Efectivo">💵 Efectivo</option>
+              <option value="POS">💳 POS / Tarjeta</option>
+              <option value="Transferencia Bancaria">🏦 Transferencia Bancaria</option>
+            </select>
+          </div>
+
+          <!-- 4. Fecha de Venta -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              📅 Fecha
+            </label>
+            <input type="date" id="pos-fecha" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-chili-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- SECCIÓN DE COMBOS / PACKS ESPECIALES (CON DESCUENTO AUTOMÁTICO DE STOCK) -->
+        <div class="mt-6">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-extrabold text-slate-900 text-base md:text-lg flex items-center gap-2">
+              <span class="badge-pack text-white text-xs px-2 py-0.5 rounded font-black tracking-wide">PACKS</span>
+              Packs Promocionales (Descuentan ítems automáticamente con marca)
+            </h3>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Promo 2x Srirachas -->
+            <div class="bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 border-2 border-red-300 hover:border-red-500 rounded-2xl p-4 transition shadow-sm relative flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-[11px] font-black uppercase text-chili-800 bg-red-200 px-2 py-0.5 rounded-full">Ahorro Gs 10.000</span>
+                    <h4 class="font-black text-slate-900 text-lg mt-1">Promo 2x Sriracha</h4>
+                  </div>
+                  <span class="font-black text-xl text-chili-700">Gs 30.000</span>
+                </div>
+                <p class="text-xs text-slate-600 mt-2">
+                  <span class="font-semibold text-slate-800">Incluye 2 productos:</span><br>
+                  • 2x Salsa Picante Sriracha (001)<br>
+                  <span class="text-[11px] text-slate-500 italic">(De Gs 40.000 a Gs 30.000)</span>
+                </p>
+              </div>
+              <button onclick="addToCart('pack_duo_sriracha')" class="mt-4 w-full bg-chili-600 hover:bg-chili-700 active:scale-95 text-white font-extrabold py-2 px-3 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Agregar Promo 2x Sriracha
+              </button>
+            </div>
+
+            <!-- Pack Completo -->
+            <div class="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-300 hover:border-amber-500 rounded-2xl p-4 transition shadow-sm relative flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-[11px] font-black uppercase text-amber-800 bg-amber-200 px-2 py-0.5 rounded-full">Ahorro Gs 20.000</span>
+                    <h4 class="font-black text-slate-900 text-lg mt-1">Pack Completo</h4>
+                  </div>
+                  <span class="font-black text-xl text-chili-700">Gs 120.000</span>
+                </div>
+                <p class="text-xs text-slate-600 mt-2">
+                  <span class="font-semibold text-slate-800">Incluye 4 productos:</span><br>
+                  • Sriracha (001)<br>
+                  • Mermelada Frutilla/Ají (002)<br>
+                  • Pasta Ají y Morrones (007)<br>
+                  • Pickles chico 360ml (005)
+                </p>
+              </div>
+              <button onclick="addToCart('pack_completo')" class="mt-4 w-full bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-extrabold py-2 px-3 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Agregar Pack Completo
+              </button>
+            </div>
+
+            <!-- Pack Clásico -->
+            <div class="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-300 hover:border-amber-500 rounded-2xl p-4 transition shadow-sm relative flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-[11px] font-black uppercase text-amber-800 bg-amber-200 px-2 py-0.5 rounded-full">Ahorro Gs 10.000</span>
+                    <h4 class="font-black text-slate-900 text-lg mt-1">Pack Clásico</h4>
+                  </div>
+                  <span class="font-black text-xl text-chili-700">Gs 90.000</span>
+                </div>
+                <p class="text-xs text-slate-600 mt-2">
+                  <span class="font-semibold text-slate-800">Incluye 3 productos:</span><br>
+                  • Sriracha (001)<br>
+                  • Mermelada Frutilla/Ají (002)<br>
+                  • Pasta Ají y Morrones (007)
+                </p>
+              </div>
+              <button onclick="addToCart('pack_clasico')" class="mt-4 w-full bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-extrabold py-2 px-3 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Agregar Pack Clásico
+              </button>
+            </div>
+
+            <!-- Pack Don Waldino -->
+            <div class="bg-gradient-to-br from-red-50 to-amber-50 border-2 border-red-300 hover:border-red-500 rounded-2xl p-4 transition shadow-sm relative flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-[11px] font-black uppercase text-chili-800 bg-red-200 px-2 py-0.5 rounded-full">Ahorro Gs 10.000</span>
+                    <h4 class="font-black text-slate-900 text-lg mt-1">Pack Don Waldino</h4>
+                  </div>
+                  <span class="font-black text-xl text-chili-700">Gs 90.000</span>
+                </div>
+                <p class="text-xs text-slate-600 mt-2">
+                  <span class="font-semibold text-slate-800">Incluye 3 productos:</span><br>
+                  • Sriracha (001)<br>
+                  • Pickles chico 360ml (005)<br>
+                  • Pasta Ají y Morrones (007)
+                </p>
+              </div>
+              <button onclick="addToCart('pack_don_waldino')" class="mt-4 w-full bg-chili-600 hover:bg-chili-700 active:scale-95 text-white font-extrabold py-2 px-3 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Agregar Pack Don Waldino
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN DE PRODUCTOS INDIVIDUALES -->
+        <div class="mt-8">
+          <h3 class="font-extrabold text-slate-900 text-base md:text-lg mb-3 flex items-center gap-2">
+            <i data-lucide="tag" class="w-5 h-5 text-chili-600"></i>
+            Productos Individuales Don Waldino
+          </h3>
+          <div id="pos-product-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            <!-- Se carga dinámicamente con JS -->
+          </div>
+        </div>
+
+        <!-- CARRITO DE COMPRA / ORDEN ACTUAL -->
+        <div class="mt-8 bg-slate-900 text-white rounded-2xl p-4 md:p-6 shadow-xl">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <i data-lucide="shopping-bag" class="w-5 h-5 text-amber-400"></i>
+              <h3 class="font-black text-lg">Detalle de la Venta en Curso</h3>
+            </div>
+            <button onclick="clearCart()" class="text-xs text-red-400 hover:text-red-300 underline font-semibold">Vaciar Carrito</button>
+          </div>
+
+          <div id="cart-items-container" class="divide-y divide-slate-800 my-4 max-h-60 overflow-y-auto">
+            <!-- Se carga dinámicamente con JS -->
+          </div>
+
+          <!-- Total y botón Confirmar -->
+          <div class="pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <span class="text-xs text-slate-400 uppercase font-semibold">Total a Cobrar</span>
+              <div id="cart-total-display" class="text-3xl font-black text-amber-400">Gs 0</div>
+              <p id="cart-comision-hint" class="text-xs text-purple-300 mt-0.5">Comisión Jazmín calculada: Gs 0</p>
+            </div>
+            <button onclick="confirmSale()" id="btn-confirm-sale" class="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 active:scale-95 text-white font-extrabold px-8 py-3.5 rounded-xl text-base shadow-lg transition flex items-center justify-center gap-2">
+              <i data-lucide="check" class="w-5 h-5"></i>
+              Confirmar y Registrar Venta
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: STOCK CENTRAL (CENTRO DE PRODUCCIÓN)-->
+    <!-- ========================================== -->
+    <section id="tab-stock" class="tab-content hidden space-y-6">
+      <div class="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-slate-200">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
+          <div>
+            <span class="text-xs font-bold text-chili-600 uppercase tracking-wider">Centro de Producción</span>
+            <h2 class="text-xl md:text-2xl font-black text-slate-900">Stock Central y Control de Inventario</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Stock automático generado por ventas con soporte de ajustes manuales auditados.</p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="openModal('modalDegustacion')" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+              <i data-lucide="gift" class="w-4 h-4"></i> Degustación / Cortesía
+            </button>
+            <button onclick="openModal('modalAjusteStock')" class="bg-chili-600 hover:bg-chili-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+              <i data-lucide="edit-3" class="w-4 h-4"></i> Ajuste Manual de Stock
+            </button>
+            <button onclick="sendStockWhatsAppReport()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow" title="Enviar inventario por WhatsApp">
+              <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp Stock
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabla de Stock Central -->
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 text-xs font-black uppercase tracking-wider">
+                <th class="p-3 rounded-l-lg">Cód</th>
+                <th class="p-3">Producto</th>
+                <th class="p-3 text-right">Precio Unitario</th>
+                <th class="p-3 text-center">Stock Actual</th>
+                <th class="p-3 text-right">Valor 100%</th>
+                <th class="p-3 text-right rounded-r-lg">Valor Estimado (-20%)</th>
+              </tr>
+            </thead>
+            <tbody id="stock-table-body" class="divide-y divide-slate-100 font-medium">
+              <!-- Se puebla con JS -->
+            </tbody>
+            <tfoot>
+              <tr class="bg-slate-50 font-black text-slate-900 border-t-2 border-slate-200">
+                <td colspan="3" class="p-3 text-right">TOTALES CENTRAL:</td>
+                <td id="stock-total-qty" class="p-3 text-center text-chili-700 font-black">0 unids.</td>
+                <td id="stock-total-val100" class="p-3 text-right text-slate-900">Gs 0</td>
+                <td id="stock-total-val80" class="p-3 text-right text-emerald-700">Gs 0</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Historial de Ajustes Manuales Registrados -->
+        <div class="mt-8 pt-6 border-t border-slate-200">
+          <h3 class="font-extrabold text-slate-900 text-base mb-3 flex items-center gap-2">
+            <i data-lucide="file-text" class="w-4 h-4 text-slate-600"></i>
+            Bitácora de Ajustes y Correcciones Manuales
+          </h3>
+          <div id="stock-adjustments-log" class="space-y-2 max-h-48 overflow-y-auto text-xs">
+            <!-- Cargado con JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: FERIAS (PLAZA ITALIA)               -->
+    <!-- ========================================== -->
+    <section id="tab-ferias" class="tab-content hidden space-y-6">
+      <div class="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-slate-200">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="bg-amber-100 text-amber-900 text-xs font-black px-2.5 py-0.5 rounded-full">Sábados - Plaza Italia</span>
+              <span class="bg-purple-100 text-purple-900 text-xs font-black px-2.5 py-0.5 rounded-full">Comisión: 15%</span>
+            </div>
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mt-1">Ferias y Rentabilidad</h2>
+            <p class="text-xs text-slate-500">Cierre diario de cada feria de sábado. El costo de mesa (Gs 35.000) lo asume Don Waldino.</p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="openCierreFeria()" class="bg-chili-600 hover:bg-chili-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+              <i data-lucide="flag" class="w-4 h-4"></i> Registrar Cierre de Feria
+            </button>
+            <button onclick="openModalDegustFeria()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+              <i data-lucide="gift" class="w-4 h-4"></i> Degustación / Cortesía
+            </button>
+            <button onclick="openModal('modalComprobantesSIP')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+              <i data-lucide="receipt" class="w-4 h-4"></i> Comprobantes SIP (03/10)
+            </button>
+            <button onclick="sendFeriaWhatsAppReport()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow">
+              <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp Reporte Feria
+            </button>
+          </div>
+        </div>
+
+        <!-- CALENDARIO DE SÁBADOS DE FERIA EN PLAZA ITALIA -->
+        <div class="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+          <h3 class="font-extrabold text-slate-800 text-xs uppercase tracking-wider mb-3 flex items-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4 text-chili-600"></i> Estado de Ferias por Sábado (Plaza Italia)
+          </h3>
+          <div id="feria-calendar-grid" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+        </div>
+
+        <!-- Resumen de Feria Actual / Acumulado -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <span class="text-xs font-bold text-slate-500 uppercase">Ventas Feria Totales</span>
+            <h3 id="feria-tab-sales" class="text-2xl font-black text-slate-900 mt-1">Gs 0</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">Ingreso total en ferias</p>
+          </div>
+          <div class="bg-purple-50 p-4 rounded-xl border border-purple-200">
+            <span class="text-xs font-bold text-purple-800 uppercase">Comisión Jazmín (15%)</span>
+            <h3 id="feria-tab-comm" class="text-2xl font-black text-purple-700 mt-1">Gs 0</h3>
+            <p class="text-[11px] text-purple-900 mt-0.5">Calculado sobre ventas brutas</p>
+          </div>
+          <div class="bg-amber-50 p-4 rounded-xl border border-amber-200">
+            <span class="text-xs font-bold text-amber-800 uppercase">Costo Mesas Pagadas</span>
+            <h3 id="feria-tab-mesas-cost" class="text-2xl font-black text-amber-900 mt-1">Gs 35.000</h3>
+            <p class="text-[11px] text-amber-800 mt-0.5">Don Waldino (Gs 35.000 x feria)</p>
+          </div>
+          <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+            <span class="text-xs font-bold text-emerald-800 uppercase">Ganancia Neta Don Waldino</span>
+            <h3 id="feria-tab-net" class="text-2xl font-black text-emerald-700 mt-1">Gs 0</h3>
+            <p class="text-[11px] text-emerald-800 mt-0.5">Ventas - Comisión - Mesas</p>
+          </div>
+        </div>
+
+        <!-- Ventas exclusivas de feria -->
+        <div class="mt-6">
+          <h3 class="font-extrabold text-slate-900 text-base mb-3">Ventas Registradas en Feria</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 uppercase text-slate-600 font-bold">
+                <tr>
+                  <th class="p-2.5">Fecha / Hora</th>
+                  <th class="p-2.5">Detalle Productos / Pack</th>
+                  <th class="p-2.5">Pago</th>
+                  <th class="p-2.5 text-right">Total Venta</th>
+                  <th class="p-2.5 text-right">Comisión 15%</th>
+                </tr>
+              </thead>
+              <tbody id="feria-sales-tbody" class="divide-y divide-slate-100">
+                <!-- Con JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Degustaciones / Cortesías de Feria -->
+        <div class="mt-6 pt-4 border-t border-slate-200">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-extrabold text-slate-900 text-base flex items-center gap-2">
+              <span class="bg-orange-100 text-orange-800 text-[10px] font-black px-2 py-0.5 rounded-full">DEGUST</span>
+              Degustaciones y Cortesías de Ferias
+            </h3>
+          </div>
+          <div id="feria-degust-list" class="space-y-2 text-xs">
+            <p class="text-slate-400 italic">No hay degustaciones registradas en ferias.</p>
+          </div>
+        </div>
+
+        <!-- Cierres de Feria Registrados -->
+        <div class="mt-6 pt-4 border-t border-slate-200">
+          <h3 class="font-extrabold text-slate-900 text-base mb-3 flex items-center gap-2">
+            <i data-lucide="flag" class="w-4 h-4 text-chili-600"></i>
+            Cierres de Feria Registrados
+          </h3>
+          <div id="feria-cierres-list" class="space-y-2 text-xs">
+            <p class="text-slate-400 italic">No hay cierres registrados aún.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 5: VENTAS CENTRO DE PRODUCCIÓN (CP)    -->
+    <!-- ========================================== -->
+    <section id="tab-cp" class="tab-content hidden space-y-6">
+      <div class="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-slate-200">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="bg-blue-100 text-blue-900 text-xs font-black px-2.5 py-0.5 rounded-full">Reporte Semanal (Sábados)</span>
+              <span class="bg-purple-100 text-purple-900 text-xs font-black px-2.5 py-0.5 rounded-full">Comisión: 10%</span>
+            </div>
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mt-1">Ventas en Centro de Producción (CP)</h2>
+            <p class="text-xs text-slate-500">Canales: Ventas Directas, Redes Sociales y Página WEB.</p>
+          </div>
+          <button onclick="sendCPWhatsAppReport()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow">
+            <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp Reporte Semanal CP
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <span class="text-xs font-bold text-slate-500 uppercase">🏢 Ventas Directas</span>
+            <h3 id="cp-tab-directa" class="text-xl font-black text-slate-900 mt-1">Gs 0</h3>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <span class="text-xs font-bold text-slate-500 uppercase">📱 Ventas en Redes</span>
+            <h3 id="cp-tab-redes" class="text-xl font-black text-slate-900 mt-1">Gs 0</h3>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <span class="text-xs font-bold text-slate-500 uppercase">💻 Ventas Página WEB</span>
+            <h3 id="cp-tab-web" class="text-xl font-black text-slate-900 mt-1">Gs 0</h3>
+          </div>
+        </div>
+
+        <div class="mt-4 p-4 bg-purple-50 rounded-xl border border-purple-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold text-purple-800 uppercase">Total CP Acumulado</span>
+            <h3 id="cp-tab-total" class="text-2xl font-black text-purple-900">Gs 0</h3>
+          </div>
+          <div>
+            <span class="text-xs font-bold text-purple-800 uppercase">Comisión Jazmín (10%)</span>
+            <h3 id="cp-tab-comm" class="text-2xl font-black text-purple-700">Gs 0</h3>
+          </div>
+        </div>
+
+        <!-- Ventas registradas de CP -->
+        <div class="mt-6">
+          <h3 class="font-extrabold text-slate-900 text-base mb-3">Historial de Ventas en CP</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 uppercase text-slate-600 font-bold">
+                <tr>
+                  <th class="p-2.5">Fecha</th>
+                  <th class="p-2.5">Canal</th>
+                  <th class="p-2.5">Detalle</th>
+                  <th class="p-2.5">Medio Pago</th>
+                  <th class="p-2.5 text-right">Monto</th>
+                  <th class="p-2.5 text-right">Comisión 10%</th>
+                </tr>
+              </thead>
+              <tbody id="cp-sales-tbody" class="divide-y divide-slate-100">
+                <!-- JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 6: VENTAS AREGUÁ                       -->
+    <!-- ========================================== -->
+    <section id="tab-aregua" class="tab-content hidden space-y-6">
+      <div class="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-slate-200">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="bg-purple-100 text-purple-900 text-xs font-black px-2.5 py-0.5 rounded-full">Reporte Quincenal</span>
+              <span class="bg-amber-100 text-amber-900 text-xs font-black px-2.5 py-0.5 rounded-full">Consignación</span>
+            </div>
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mt-1">Control de Stock y Rendición Areguá</h2>
+            <p class="text-xs text-slate-500">Lotes entregados pendientes de rendición y balance de consignación.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="openModal('modalRendirAregua')" class="bg-chili-600 hover:bg-chili-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+              <i data-lucide="clipboard-check" class="w-4 h-4"></i> Rendir Ventas Areguá
+            </button>
+            <button onclick="sendAreguaWhatsAppReport()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+              <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp Areguá
+            </button>
+          </div>
+        </div>
+
+        <!-- Lotes entregados -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <!-- Lote 13/09 -->
+          <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-200">
+              <span class="font-black text-slate-800 text-sm">📦 Entrega Lote 13/09</span>
+              <span class="text-[10px] bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded">Pendiente de Rendición</span>
+            </div>
+            <ul class="mt-3 space-y-1 text-xs text-slate-700">
+              <li class="flex justify-between"><span>• 12 Salsa Sriracha</span> <span class="font-bold">Gs 240.000</span></li>
+              <li class="flex justify-between"><span>• 5 Mermelada Frutilla/Ají</span> <span class="font-bold">Gs 200.000</span></li>
+              <li class="flex justify-between"><span>• 3 Aceite Oriental</span> <span class="font-bold">Gs 120.000</span></li>
+              <li class="flex justify-between"><span>• 2 Pickles Grandes (800ml)</span> <span class="font-bold">Gs 120.000</span></li>
+              <li class="flex justify-between"><span>• 4 Pickles Chico (360ml)</span> <span class="font-bold">Gs 160.000</span></li>
+              <li class="flex justify-between"><span>• 4 Pasta de Ají (común)</span> <span class="font-bold">Gs 160.000</span></li>
+            </ul>
+            <div class="mt-3 pt-2 border-t border-slate-200 flex justify-between font-black text-xs text-slate-900">
+              <span>Total Lote 13/09: 30 unidades</span>
+              <span>Gs 1.000.000</span>
+            </div>
+          </div>
+
+          <!-- Lote 08/10 -->
+          <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-200">
+              <span class="font-black text-slate-800 text-sm">📦 Entrega Lote 08/10</span>
+              <span class="text-[10px] bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded">Pendiente de Rendición</span>
+            </div>
+            <ul class="mt-3 space-y-1 text-xs text-slate-700">
+              <li class="flex justify-between"><span>• 6 Pickles</span> <span class="font-bold">Gs 240.000</span></li>
+              <li class="flex justify-between"><span>• 11 Mermeladas Frutilla/Ají</span> <span class="font-bold">Gs 440.000</span></li>
+              <li class="flex justify-between"><span>• 6 Salsa Sriracha</span> <span class="font-bold">Gs 120.000</span></li>
+              <li class="flex justify-between"><span>• 1 Aceite Oriental</span> <span class="font-bold">Gs 40.000</span></li>
+            </ul>
+            <div class="mt-8 pt-2 border-t border-slate-200 flex justify-between font-black text-xs text-slate-900">
+              <span>Total Lote 08/10: 24 unidades</span>
+              <span>Gs 840.000</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen Consignación Areguá -->
+        <div class="mt-6 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <h4 class="font-black text-amber-900 text-base">Total Mercadería en Areguá en Consignación</h4>
+            <p class="text-xs text-amber-800">54 frascos en total entregados en ambos lotes sin rendir.</p>
+          </div>
+          <div class="text-right">
+            <span class="text-xs font-bold text-amber-800">Valor Total en Areguá:</span>
+            <div class="text-2xl font-black text-chili-700">Gs 1.840.000</div>
+          </div>
+        </div>
+
+        <!-- Rendiciones Realizadas -->
+        <div class="mt-6">
+          <h3 class="font-extrabold text-slate-900 text-base mb-3">Rendiciones Efectuadas por Areguá</h3>
+          <div id="aregua-rendiciones-list" class="space-y-2 text-xs">
+            <p class="text-slate-400 italic">No hay rendiciones registradas aún para estos lotes.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 7: HISTORIAL GENERAL DE VENTAS         -->
+    <!-- ========================================== -->
+    <section id="tab-history" class="tab-content hidden space-y-6">
+      <div class="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-slate-200">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
+          <div>
+            <span class="text-xs font-bold text-chili-600 uppercase tracking-wider">Auditoría</span>
+            <h2 class="text-xl md:text-2xl font-black text-slate-900">Historial Completo de Ventas</h2>
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="history-filter-punto" onchange="filterHistory()" class="bg-slate-100 border border-slate-300 rounded-lg text-xs font-bold p-2 text-slate-700">
+              <option value="all">Todos los Puntos</option>
+              <option value="feria">Ferias</option>
+              <option value="cp">Centro Producción</option>
+              <option value="aregua">Areguá</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-600 font-bold uppercase">
+                <th class="p-2.5">ID / Fecha</th>
+                <th class="p-2.5">Punto / Canal</th>
+                <th class="p-2.5">Productos / Packs</th>
+                <th class="p-2.5">Pago</th>
+                <th class="p-2.5 text-right">Total</th>
+                <th class="p-2.5 text-right">Comisión</th>
+                <th class="p-2.5 text-center">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body" class="divide-y divide-slate-100">
+              <!-- JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- BARRA DE NAVEGACIÓN INFERIOR (MOBILE FIRST)-->
+  <!-- ========================================== -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-2xl z-40 flex items-center justify-around py-2 px-1">
+    <button onclick="switchTab('dashboard')" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-chili-700" data-tab="dashboard">
+      <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Panel</span>
+    </button>
+    <button onclick="switchTab('pos')" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-slate-400 hover:text-slate-700" data-tab="pos">
+      <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Vender</span>
+    </button>
+    <button onclick="switchTab('stock')" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-slate-400 hover:text-slate-700" data-tab="stock">
+      <i data-lucide="boxes" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Stock</span>
+    </button>
+    <button onclick="switchTab('ferias')" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-slate-400 hover:text-slate-700" data-tab="ferias">
+      <i data-lucide="tent" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Feria</span>
+    </button>
+    <button onclick="switchTab('cp')" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-slate-400 hover:text-slate-700" data-tab="cp">
+      <i data-lucide="factory" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">CP</span>
+    </button>
+    <button onclick="switchTab('aregua')" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-slate-400 hover:text-slate-700" data-tab="aregua">
+      <i data-lucide="map-pin" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Areguá</span>
+    </button>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- MODALES DE APOYO                           -->
+  <!-- ========================================== -->
+
+  <!-- Modal Ajuste Manual de Stock -->
+  <div id="modalAjusteStock" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl animate-pop">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <h3 class="font-black text-slate-900 text-lg flex items-center gap-2">
+          <i data-lucide="sliders" class="w-5 h-5 text-chili-600"></i>
+          Ajuste Manual de Stock
+        </h3>
+        <button onclick="closeModal('modalAjusteStock')" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="mt-4 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Producto a Corregir</label>
+          <select id="ajuste-producto-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold">
+            <!-- JS -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo de Ajuste</label>
+          <select id="ajuste-tipo" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold">
+            <option value="set">Fijar Nuevo Stock Total Exacto</option>
+            <option value="add">Sumar Unidades (+)</option>
+            <option value="subtract">Restar Unidades (-)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cantidad</label>
+          <input type="number" id="ajuste-cantidad" min="0" placeholder="Ej: 5" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-bold">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Motivo / Justificación (Obligatorio)</label>
+          <input type="text" id="ajuste-motivo" placeholder="Ej: Rotura de frasco, recuento físico, etc." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-medium">
+        </div>
+      </div>
+
+      <div class="mt-6 flex gap-3">
+        <button onclick="closeModal('modalAjusteStock')" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl text-sm">Cancelar</button>
+        <button onclick="saveStockAdjustment()" class="flex-1 py-2.5 bg-chili-600 hover:bg-chili-700 text-white font-bold rounded-xl text-sm shadow">Guardar Ajuste</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Rendición Areguá -->
+  <div id="modalRendirAregua" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl animate-pop">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <h3 class="font-black text-slate-900 text-lg flex items-center gap-2">
+          <i data-lucide="clipboard-check" class="w-5 h-5 text-chili-600"></i>
+          Registrar Rendición de Areguá
+        </h3>
+        <button onclick="closeModal('modalRendirAregua')" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="mt-4 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Monto Total Recibido / Rendido (Gs)</label>
+          <input type="number" id="aregua-rendicion-monto" placeholder="Ej: 500000" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-bold">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Medio de Cobro</label>
+          <select id="aregua-rendicion-pago" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-bold">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia Bancaria">Transferencia Bancaria</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Observaciones / Unidades Vendidas</label>
+          <textarea id="aregua-rendicion-obs" rows="3" placeholder="Detalle de productos rendidos y saldo que queda en local..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-medium"></textarea>
+        </div>
+      </div>
+
+      <div class="mt-6 flex gap-3">
+        <button onclick="closeModal('modalRendirAregua')" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl text-sm">Cancelar</button>
+        <button onclick="saveAreguaRendicion()" class="flex-1 py-2.5 bg-chili-600 hover:bg-chili-700 text-white font-bold rounded-xl text-sm shadow">Registrar Rendición</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Degustación / Cortesía -->
+  <div id="modalDegustacion" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl animate-pop">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <h3 class="font-black text-slate-900 text-lg flex items-center gap-2">
+          <span class="bg-orange-100 text-orange-800 text-xs font-black px-2 py-0.5 rounded">DEGUST</span>
+          Registrar Degustación / Cortesía
+        </h3>
+        <button onclick="closeModal('modalDegustacion')" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <p class="text-xs text-slate-500 mt-2">Registra productos usados para degustación o dados de cortesía. Se descontarán del stock y quedarán en la bitácora.</p>
+
+      <div class="mt-4 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo</label>
+          <select id="degust-tipo" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold">
+            <option value="Degustación">🍽️ Degustación (prueba en feria / evento)</option>
+            <option value="Cortesía">🎁 Cortesía / Regalo autorizado</option>
+            <option value="Muestra">📦 Muestra comercial</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Punto de Venta / Origen</label>
+          <select id="degust-punto" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold">
+            <option value="feria">🎪 Feria (Plaza Italia)</option>
+            <option value="cp">🏭 Centro de Producción (CP)</option>
+            <option value="aregua">🏺 Areguá</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Producto <span class="text-red-500">*</span></label>
+          <select id="degust-producto" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold">
+            <!-- JS -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cantidad <span class="text-red-500">*</span></label>
+          <input type="number" id="degust-cantidad" min="1" value="1" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-bold">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Fecha</label>
+          <input type="date" id="degust-fecha" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Observación / Motivo <span class="text-red-500">*</span></label>
+          <input type="text" id="degust-motivo" placeholder="Ej: Degustación en feria, muestra para cliente, etc." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-medium">
+        </div>
+      </div>
+
+      <div class="mt-6 flex gap-3">
+        <button onclick="closeModal('modalDegustacion')" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl text-sm">Cancelar</button>
+        <button onclick="saveDegustacion()" class="flex-1 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-sm shadow">Registrar Degustación</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Cierre de Feria -->
+  <div id="modalCierreFeria" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl animate-pop max-h-[92vh] overflow-y-auto">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="bg-amber-100 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded">CIERRE FERIA</span>
+            <h3 class="font-black text-slate-900 text-lg">Registrar Cierre de Feria</h3>
+          </div>
+          <p class="text-xs text-slate-500">Plaza Italia – Sábados. Calculá comisiones y cerrá la rendición.</p>
+        </div>
+        <button onclick="closeModal('modalCierreFeria')" class="text-slate-400 hover:text-slate-700 ml-4">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="mt-4 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Fecha de la Feria <span class="text-red-500">*</span></label>
+          <input type="date" id="cierre-fecha" oninput="prefillCierreMontos(); recalcCierreFeria()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold">
+        </div>
+
+        <!-- Resumen automático de ventas del día -->
+        <div id="cierre-resumen-ventas" class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-1">
+          <p class="text-slate-400 italic">Seleccioná una fecha para ver las ventas.</p>
+        </div>
+
+        <!-- Degustaciones del día -->
+        <div id="cierre-resumen-degusts" class="hidden p-3 bg-orange-50 border border-orange-200 rounded-xl text-xs space-y-1">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Efectivo en Caja (Gs)</label>
+            <p class="text-[10px] text-slate-500 mb-1">Precargado con lo registrado. Corregí si contaste otra cosa.</p>
+            <input type="number" id="cierre-efectivo" placeholder="0" oninput="recalcCierreFeria()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-bold">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Transferencias / POS (Gs)</label>
+            <p class="text-[10px] text-slate-500 mb-1">Suma de comprobantes SIP, transferencias y POS.</p>
+            <input type="number" id="cierre-transferencias" placeholder="0" oninput="recalcCierreFeria()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-bold">
+          </div>
+        </div>
+
+        <!-- Liquidación calculada -->
+        <div class="p-4 bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl text-white text-xs space-y-2">
+          <div class="text-amber-400 font-black text-xs uppercase tracking-wider mb-2">📊 Liquidación Calculada</div>
+          <div class="flex justify-between">
+            <span class="text-slate-300">Total Ventas Brutas:</span>
+            <span id="cierre-calc-total" class="font-black text-amber-400">Gs 0</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-300">Comisión Jazmín (15%):</span>
+            <span id="cierre-calc-comision" class="font-bold text-purple-300">Gs 0</span>
+          </div>
+          <div class="flex justify-between border-t border-slate-700 pt-2">
+            <span class="text-slate-300">Efectivo Ingresado:</span>
+            <span id="cierre-calc-efectivo" class="font-bold text-white">Gs 0</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-300">Transf. / POS Ingresado:</span>
+            <span id="cierre-calc-trans" class="font-bold text-white">Gs 0</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-300">Diferencia (cuadre):</span>
+            <span id="cierre-calc-diff" class="font-bold text-emerald-400">Gs 0</span>
+          </div>
+          <div class="flex justify-between border-t border-slate-700 pt-2">
+            <span id="cierre-calc-aentregar-label" class="text-amber-300 font-bold">💵 Efectivo a entregar a Don Waldino:</span>
+            <span id="cierre-calc-aentregar" class="font-black text-amber-300">Gs 0</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-300">🍽️ Degustaciones (unidades):</span>
+            <span id="cierre-calc-degusts" class="font-bold text-orange-300">0 uds</span>
+          </div>
+          <!-- Costo mesa: INFORMATIVO -->
+          <div class="mt-2 p-2 bg-slate-700/50 rounded-lg">
+            <div class="flex justify-between">
+              <span class="text-slate-400">🪑 Costo Mesa (Gs 35.000):</span>
+              <span class="font-bold text-slate-400">Gs 35.000</span>
+            </div>
+            <p class="text-slate-500 text-[10px] mt-0.5">⚠️ Solo informativo — asumido por Don Waldino, NO sale de la caja de Jazmín</p>
+          </div>
+          <div class="flex justify-between border-t border-slate-700 pt-2">
+            <span class="text-emerald-300 font-bold">📈 Ganancia Neta Don Waldino:</span>
+            <span id="cierre-calc-net" class="font-black text-emerald-300">Gs 0</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Observaciones adicionales</label>
+          <textarea id="cierre-obs" rows="2" placeholder="Ej: Muy buena concurrencia, clima soleado..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-medium"></textarea>
+        </div>
+      </div>
+
+      <div class="mt-6 flex gap-3">
+        <button onclick="closeModal('modalCierreFeria')" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl text-sm">Cancelar</button>
+        <button onclick="saveCierreFeria()" class="flex-1 py-3 bg-gradient-to-r from-chili-700 to-chili-600 hover:from-chili-600 hover:to-chili-500 text-white font-black rounded-xl text-sm shadow-lg flex items-center justify-center gap-2">
+          <i data-lucide="check-circle-2" class="w-4 h-4"></i> Confirmar Cierre de Feria
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Comprobantes SIP de Feria 03/10 -->
+  <div id="modalComprobantesSIP" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl animate-pop max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="bg-blue-100 text-blue-800 text-[10px] font-black px-2 py-0.5 rounded">Feria 03/10/2026</span>
+            <h3 class="font-black text-slate-900 text-lg">Comprobantes y Liquidación</h3>
+          </div>
+          <p class="text-xs text-slate-500">Plaza Italia - Encargada: Jazmín Rodríguez</p>
+        </div>
+        <button onclick="closeModal('modalComprobantesSIP')" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Resumen de Cuadre -->
+      <div class="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold text-emerald-800">✅ Cuadre de Caja y Pagos:</span>
+          <span class="font-black text-emerald-700 text-sm">Gs 550.000 (100% OK)</span>
+        </div>
+        <p class="text-[11px] text-emerald-700 mt-1">
+          Efectivo (Gs 150.000) + 8 Transferencias SIP (Gs 400.000) = <b>Gs 550.000</b>.<br>
+          Comisión Jazmín (15%): <b>Gs 82.500</b> | Mesa: <b>Gs 35.000</b> | Neto Don Waldino: <b>Gs 432.500</b>.
+        </p>
+      </div>
+
+      <!-- Detalle de Productos Vendidos -->
+      <div class="mt-4">
+        <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider mb-2">Productos Vendidos en la Feria (14 frascos):</h4>
+        <div class="space-y-1.5 text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div class="flex justify-between">
+            <span>• 7 Pastas de Ají y Morrones (con descuento Waldi)</span>
+            <span class="font-bold">Gs 270.000</span>
+          </div>
+          <div class="flex justify-between">
+            <span>• 5 Mermeladas Frutilla y Ají</span>
+            <span class="font-bold">Gs 200.000</span>
+          </div>
+          <div class="flex justify-between">
+            <span>• 2 Pickles pequeños (360 ml)</span>
+            <span class="font-bold">Gs 80.000</span>
+          </div>
+          <div class="pt-2 border-t border-slate-200 flex justify-between font-black text-slate-900">
+            <span>Total Mercadería Vendida:</span>
+            <span>Gs 550.000</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de Comprobantes SIP Registrados -->
+      <div class="mt-4">
+        <div class="flex justify-between items-center mb-2">
+          <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider">8 Transferencias SIP a Banco Continental DW:</h4>
+          <span class="font-black text-blue-700 text-xs">Total: Gs 400.000</span>
+        </div>
+        <div class="space-y-2 text-xs">
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg flex justify-between items-center">
+            <span class="font-medium text-slate-800">1. SIP Transferencia</span>
+            <span class="font-bold text-blue-800 font-mono">Gs 40.000 ➔ Cont DW</span>
+          </div>
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg flex justify-between items-center">
+            <span class="font-medium text-slate-800">2. SIP Transferencia</span>
+            <span class="font-bold text-blue-800 font-mono">Gs 40.000 ➔ Cont DW</span>
+          </div>
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg flex justify-between items-center">
+            <span class="font-medium text-slate-800">3. SIP Transferencia</span>
+            <span class="font-bold text-blue-800 font-mono">Gs 40.000 ➔ Cont DW</span>
+          </div>
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg flex justify-between items-center">
+            <span class="font-medium text-slate-800">4. SIP Transferencia</span>
+            <span class="font-bold text-blue-800 font-mono">Gs 40.000 ➔ Cont DW</span>
+          </div>
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg flex justify-between items-center">
+            <span class="font-medium text-slate-800">5. SIP Transferencia</span>
+            <span class="font-bold text-blue-800 font-mono">Gs 40.000 ➔ Cont DW</span>
+          </div>
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg flex justify-between items-center">
+            <span class="font-medium text-slate-800">6. SIP Transferencia</span>
+            <span class="font-bold text-blue-800 font-mono">Gs 40.000 ➔ Cont DW</span>
+          </div>
+          <div class="p-2.5 bg-blue-100/60 border border-blue-300 rounded-lg flex justify-between items-center">
+            <span class="font-medium text-slate-800">7. SIP Transferencia</span>
+            <span class="font-bold text-blue-900 font-mono">Gs 80.000 ➔ Cont DW</span>
+          </div>
+          <div class="p-2.5 bg-blue-100/60 border border-blue-300 rounded-lg flex justify-between items-center">
+            <span class="font-medium text-slate-800">8. SIP Transferencia</span>
+            <span class="font-bold text-blue-900 font-mono">Gs 80.000 ➔ Cont DW</span>
+          </div>
+          <div class="p-2.5 bg-amber-50 border border-amber-200 rounded-lg flex justify-between items-center">
+            <span class="font-medium text-slate-800">💵 Cobro en Efectivo en Mano:</span>
+            <span class="font-bold text-amber-900 font-mono">Gs 150.000</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rendición de Efectivo -->
+      <div class="mt-4 p-3 bg-slate-100 rounded-xl text-xs space-y-1">
+        <div class="flex justify-between text-slate-600">
+          <span>Efectivo recaudado por Jazmín:</span>
+          <span>Gs 150.000</span>
+        </div>
+        <div class="flex justify-between text-purple-700 font-bold">
+          <span>- Comisión Jazmín (15%):</span>
+          <span>- Gs 82.500</span>
+        </div>
+        <div class="flex justify-between font-black text-slate-900 pt-1 border-t border-slate-200">
+          <span>Efectivo a entregar a Don Waldino:</span>
+          <span>Gs 67.500</span>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end">
+        <button onclick="closeModal('modalComprobantesSIP')" class="px-5 py-2.5 bg-slate-900 text-white font-bold rounded-xl text-xs">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Resumen de Feria (genérico) -->
+  <div id="modalResumenFeria" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl animate-pop max-h-[92vh] overflow-y-auto">
+      <div id="resumen-feria-body"></div>
+      <div class="mt-6 flex gap-3">
+        <button id="resumen-feria-wa" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2">
+          <i data-lucide="message-circle" class="w-4 h-4"></i> Enviar por WhatsApp
+        </button>
+        <button onclick="closeModal('modalResumenFeria')" class="px-5 py-2.5 bg-slate-900 text-white font-bold rounded-xl text-xs">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Sincronización / Copia de Seguridad -->
+  <div id="modalSync" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl animate-pop">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <h3 class="font-black text-slate-900 text-lg flex items-center gap-2">
+          <i data-lucide="database" class="w-5 h-5 text-blue-600"></i>
+          Gestión de Datos y Copias
+        </h3>
+        <button onclick="closeModal('modalSync')" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="mt-4 space-y-3">
+        <p class="text-xs text-slate-600">Todos los datos de ventas y stock se guardan localmente en tu celular o navegador.</p>
+        
+        <button onclick="exportDataJSON()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2">
+          <i data-lucide="download" class="w-4 h-4"></i> Exportar Copia de Seguridad (JSON)
+        </button>
+
+        <label class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm flex items-center justify-center gap-2 cursor-pointer">
+          <i data-lucide="upload" class="w-4 h-4"></i> Restaurar desde Archivo (JSON)
+          <input type="file" id="import-file" onchange="importDataJSON(event)" class="hidden" accept=".json">
+        </label>
+
+        <hr class="my-2 border-slate-200">
+
+        <button onclick="resetToInitialDefaults()" class="w-full py-2 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-xl text-xs flex items-center justify-center gap-2">
+          <i data-lucide="alert-triangle" class="w-4 h-4"></i> Restablecer Stock Inicial de Don Waldino
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICACIÓN -->
+  <div id="toast" class="fixed top-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 text-sm font-bold flex items-center gap-2.5 transition-all transform translate-y-[-150%] opacity-0 duration-300">
+    <i data-lucide="check" class="w-5 h-5 text-emerald-400"></i>
+    <span id="toast-msg">Mensaje de notificación</span>
+  </div>
+
+  <!-- JAVASCRIPT DE LA APLICACIÓN -->
+  <script>
+    /* ========================================================
+       ESTRUCTURA DE DATOS Y CONFIGURACIÓN INICIAL
+       ======================================================== */
+    const STORAGE_KEY_PRODUCTS = "dw_products_v1";
+    const STORAGE_KEY_SALES = "dw_sales_v1";
+    const STORAGE_KEY_ADJUSTMENTS = "dw_adjustments_v1";
+    const STORAGE_KEY_AREGUA = "dw_aregua_v1";
+
+    // Catálogo de Productos Don Waldino con Stock Inicial fijado
+    const INITIAL_PRODUCTS = [
+      { id: "001", name: "Salsa Picante tipo Sriracha", price: 20000, stock: 33, emoji: "🔥" },
+      { id: "002", name: "Mermelada de Frutilla y Ají Picante", price: 40000, stock: 25, emoji: "🍓" },
+      { id: "003", name: "Pasta de Ají Picante", price: 40000, stock: 10, emoji: "🌶️" },
+      { id: "007", name: "Pasta de Ají y Morrones", price: 40000, stock: 109, emoji: "🫑" }, // 83 + 26
+      { id: "004", name: "Aceite Picante Estilo Oriental", price: 40000, stock: 44, emoji: "🫒" },
+      { id: "005", name: "Pickles Picantes chico (360 ml)", price: 40000, stock: 36, emoji: "🥒" },
+      { id: "006", name: "Pickles Picantes grande (800 ml)", price: 60000, stock: 13, emoji: "🫙" },
+    ];
+
+    // Fotos de productos (carpeta img/)
+    const PRODUCT_IMAGES = {
+      "001": "img/001-sriracha.webp",
+      "002": "img/002-mermelada-frutilla-aji.webp",
+      "003": "img/003-pasta-aji.webp",
+      "004": "img/004-aceite-oriental.webp",
+      "005": "img/005-pickles-chico.webp",
+      "006": "img/006-pickles-grande.webp",
+      "007": "img/007-pasta-aji-morrones.webp"
+    };
+    function productImg(id, cls) {
+      const src = PRODUCT_IMAGES[id];
+      if (!src) return `<span class="${cls} flex items-center justify-center text-xl">🌶️</span>`;
+      return `<img src="${src}" alt="" loading="lazy" class="${cls} object-contain bg-white">`;
+    }
+
+    // Fecha local (YYYY-MM-DD) — evita que de noche se registre el día siguiente
+    function todayLocal() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    }
+    function diaFecha(f) {
+      const [y, m, d] = f.split("-").map(Number);
+      const dia = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"][new Date(y, m - 1, d).getDay()];
+      return `${dia} ${fmtFecha(f)}`;
+    }
+    function fmtFecha(f) {
+      if (!f) return "";
+      const [y, m, d] = f.split("-");
+      return `${d}/${m}/${y}`;
+    }
+
+    // Definición de Packs Don Waldino y sus componentes
+    const PACK_DEFINITIONS = {
+      pack_duo_sriracha: {
+        id: "PROMO-2-SRIRACHA",
+        name: "Promo 2x Sriracha",
+        price: 30000,
+        saving: 10000,
+        items: ["001", "001"], // 2 Salsas Sriracha
+        itemLabels: "2x Salsa Sriracha (001)"
+      },
+      pack_completo: {
+        id: "PACK-COMPLETO",
+        name: "Pack Completo",
+        price: 120000,
+        saving: 20000,
+        items: ["001", "002", "007", "005"], // Sriracha + Mermelada + Pasta Ají y Morrones + Pickles chico
+        itemLabels: "Sriracha + Mermelada + Ají/Morrones + Pickles chico"
+      },
+      pack_clasico: {
+        id: "PACK-CLASICO",
+        name: "Pack Clásico",
+        price: 90000,
+        saving: 10000,
+        items: ["001", "002", "007"], // Sriracha + Mermelada + Pasta Ají y Morrones
+        itemLabels: "Sriracha + Mermelada + Ají/Morrones"
+      },
+      pack_don_waldino: {
+        id: "PACK-DON-WALDINO",
+        name: "Pack Don Waldino",
+        price: 90000,
+        saving: 10000,
+        items: ["001", "005", "007"], // Sriracha + Pickles chico + Pasta Ají y Morrones
+        itemLabels: "Sriracha + Pickles chico + Ají/Morrones"
+      }
+    };
+
+    // Venta histórica de la 1ra Feria (03/10/2026 - Plaza Italia)
+    // No descuenta stock central (ya contemplado)
+    const HISTORICAL_FERIA_0310 = {
+      id: "FERIA-0310",
+      fecha: "2026-10-03",
+      timestamp: "2026-10-03T13:00:00.000Z",
+      punto: "feria",
+      canal: null,
+      metodoPago: "Mixto (SIP Continental Gs 400.000 / Efectivo Gs 150.000)",
+      items: [
+        { isPack: false, id: "007", name: "Pasta de Ají y Morrones", qty: 7, unitPrice: 40000, subtotal: 270000, nota: "Descuento de Gs 10.000 autorizado por Waldi (1 pasta a Gs 30.000)" },
+        { isPack: false, id: "002", name: "Mermelada de Frutilla y Ají", qty: 5, unitPrice: 40000, subtotal: 200000 },
+        { isPack: false, id: "005", name: "Pickles Picantes chico (360 ml)", qty: 2, unitPrice: 40000, subtotal: 80000 }
+      ],
+      detallePagos: {
+        efectivo: 150000,
+        transferenciasSIP: 400000,
+        sipItems: [
+          "Gs 40.000 a Continental DW",
+          "Gs 40.000 a Continental DW",
+          "Gs 40.000 a Continental DW",
+          "Gs 40.000 a Continental DW",
+          "Gs 40.000 a Continental DW",
+          "Gs 40.000 a Continental DW",
+          "Gs 80.000 a Continental DW",
+          "Gs 80.000 a Continental DW"
+        ]
+      },
+      total: 550000,
+      comision: 82500, // 15% sobre Gs 550.000
+      costoMesa: 35000, // Pagado por Don Waldino
+      encargada: "Jazmín Rodríguez",
+      observacion: "Feria Plaza Italia 03/10. 14 frascos vendidos. Descuento autorizado por Waldi. Cuadre exacto: Gs 150.000 en efectivo + Gs 400.000 en 8 comprobantes SIP. Comisión Jazmín: Gs 82.500. Efectivo a entregar: Gs 67.500."
+    };
+
+    // Estado en memoria
+    let products = [];
+    let sales = [];
+    let adjustments = [];
+    let areguaRendiciones = [];
+    let cart = []; // Ítems en el carrito de venta actual
+
+    /* ========================================================
+       INICIALIZACIÓN Y CARGA DE DATOS
+       ======================================================== */
+    function init() {
+      // Cargar productos o inicializar con stock inicial
+      const storedProducts = localStorage.getItem(STORAGE_KEY_PRODUCTS);
+      if (storedProducts) {
+        products = JSON.parse(storedProducts);
+      } else {
+        products = JSON.parse(JSON.stringify(INITIAL_PRODUCTS));
+        saveProducts();
+      }
+
+      // Cargar ventas (asegurando que la feria del 03/10 esté registrada)
+      const storedSales = localStorage.getItem(STORAGE_KEY_SALES);
+      if (storedSales) {
+        sales = JSON.parse(storedSales);
+        // Si no contiene la feria 03/10, añadirla al registro
+        if (!sales.some(s => s.id === "FERIA-0310")) {
+          sales.push(HISTORICAL_FERIA_0310);
+          saveSales();
+        }
+      } else {
+        sales = [HISTORICAL_FERIA_0310];
+        saveSales();
+      }
+
+      // Cargar ajustes manuales
+      const storedAdjustments = localStorage.getItem(STORAGE_KEY_ADJUSTMENTS);
+      adjustments = storedAdjustments ? JSON.parse(storedAdjustments) : [];
+
+      // Cargar rendiciones de Areguá
+      const storedAregua = localStorage.getItem(STORAGE_KEY_AREGUA);
+      areguaRendiciones = storedAregua ? JSON.parse(storedAregua) : [];
+
+      // Cargar degustaciones y cierres
+      loadDegusts();
+      loadCierres();
+
+      // Establecer fecha de hoy en el formulario POS
+      const today = todayLocal();
+      const posFechaInput = document.getElementById("pos-fecha");
+      if (posFechaInput) posFechaInput.value = today;
+
+      // Renderizar todo
+      renderAll();
+      lucide.createIcons();
+    }
+
+    function saveProducts() {
+      localStorage.setItem(STORAGE_KEY_PRODUCTS, JSON.stringify(products));
+    }
+    function saveSales() {
+      localStorage.setItem(STORAGE_KEY_SALES, JSON.stringify(sales));
+    }
+    function saveAdjustments() {
+      localStorage.setItem(STORAGE_KEY_ADJUSTMENTS, JSON.stringify(adjustments));
+    }
+    function saveAregua() {
+      localStorage.setItem(STORAGE_KEY_AREGUA, JSON.stringify(areguaRendiciones));
+    }
+
+    /* Formateador de moneda Guaraníes */
+    function formatGs(val) {
+      return "Gs " + Number(val || 0).toLocaleString("es-PY");
+    }
+
+    /* Notificación Toast */
+    function showToast(msg, iconName = "check") {
+      const toast = document.getElementById("toast");
+      const toastMsg = document.getElementById("toast-msg");
+      toastMsg.innerText = msg;
+      toast.classList.remove("translate-y-[-150%]", "opacity-0");
+      setTimeout(() => {
+        toast.classList.add("translate-y-[-150%]", "opacity-0");
+      }, 3000);
+    }
+
+    /* Navegación por pestañas */
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
+      const target = document.getElementById("tab-" + tabId);
+      if (target) target.classList.remove("hidden");
+
+      // Desktop tabs
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        if (btn.getAttribute("data-tab") === tabId) {
+          btn.classList.add("border-white", "text-white");
+          btn.classList.remove("border-transparent", "text-red-200");
+        } else {
+          btn.classList.remove("border-white", "text-white");
+          btn.classList.add("border-transparent", "text-red-200");
+        }
+      });
+
+      // Mobile tabs
+      document.querySelectorAll(".mobile-tab-btn").forEach(btn => {
+        if (btn.getAttribute("data-tab") === tabId) {
+          btn.classList.add("text-chili-700");
+          btn.classList.remove("text-slate-400");
+        } else {
+          btn.classList.remove("text-chili-700");
+          btn.classList.add("text-slate-400");
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      lucide.createIcons();
+    }
+
+    /* Cambio de Punto de Venta en POS */
+    function handlePuntoChange() {
+      const punto = document.getElementById("pos-punto").value;
+      const canalContainer = document.getElementById("pos-canal-container");
+      if (punto === "cp") {
+        canalContainer.classList.remove("hidden");
+      } else {
+        canalContainer.classList.add("hidden");
+      }
+      updateCartDisplay();
+    }
+
+    /* ========================================================
+       RENDERIZADO COMPLETO
+       ======================================================== */
+    function renderAll() {
+      renderPackThumbs();
+      renderDashboard();
+      renderPOSProducts();
+      renderStockTable();
+      renderFeriasTab();
+      renderCPTab();
+      renderAreguaTab();
+      renderHistoryTable();
+      populateAjusteSelect();
+      renderFeriaDegusts();
+      renderCierresFeriaList();
+      renderDegustBitacora();
+      lucide.createIcons();
+    }
+
+    /* 1. Render Dashboard */
+    function renderDashboard() {
+      // Stock total y valorizaciones
+      let totalUnits = 0;
+      let totalValue100 = 0;
+      products.forEach(p => {
+        totalUnits += p.stock;
+        totalValue100 += p.stock * p.price;
+      });
+      const totalValue80 = Math.round(totalValue100 * 0.8);
+
+      document.getElementById("dash-stock-value-100").innerText = formatGs(totalValue100);
+      document.getElementById("dash-stock-value-80").innerText = formatGs(totalValue80);
+      document.getElementById("dash-stock-total-units").innerText = totalUnits;
+
+      // Cálculo de ventas globales y por canal
+      let globalSales = 0;
+      let globalCommissions = 0;
+
+      let feriaSales = 0;
+      let feriaComm = 0;
+      let countFerias = 0;
+
+      let cpDirecta = 0;
+      let cpRedes = 0;
+      let cpWeb = 0;
+
+      sales.forEach(s => {
+        globalSales += s.total;
+        globalCommissions += s.comision;
+
+        if (s.punto === "feria") {
+          feriaSales += s.total;
+          feriaComm += s.comision;
+          countFerias++;
+        } else if (s.punto === "cp") {
+          if (s.canal === "directa") cpDirecta += s.total;
+          else if (s.canal === "redes") cpRedes += s.total;
+          else if (s.canal === "web") cpWeb += s.total;
+          else cpDirecta += s.total;
+        }
+      });
+
+      const cpTotal = cpDirecta + cpRedes + cpWeb;
+      const cpComm = Math.round(cpTotal * 0.10); // 10%
+
+      // Costo mesa ferias (Gs 35.000 por sábado/feria realizada con ventas)
+      // Si hay ventas en feria, calculamos al menos 1 sábado o las fechas únicas de feria
+      const feriaFechas = [...new Set(sales.filter(s => s.punto === "feria").map(s => s.fecha))];
+      const totalMesaCost = (feriaFechas.length > 0 ? feriaFechas.length : (feriaSales > 0 ? 1 : 0)) * 35000;
+      const feriaNet = feriaSales - feriaComm - totalMesaCost;
+
+      // Areguá
+      let areguaSalesTotal = 0;
+      areguaRendiciones.forEach(r => areguaSalesTotal += r.monto);
+
+      // DOM Dashboard
+      document.getElementById("dash-total-sales").innerText = formatGs(globalSales);
+      document.getElementById("dash-sales-count").innerText = sales.length;
+      document.getElementById("dash-total-commissions").innerText = formatGs(globalCommissions);
+
+      // Desglose Feria
+      document.getElementById("dash-feria-sales").innerText = formatGs(feriaSales);
+      document.getElementById("dash-feria-comm").innerText = formatGs(feriaComm);
+      document.getElementById("dash-feria-mesa").innerText = formatGs(totalMesaCost);
+      document.getElementById("dash-feria-net").innerText = formatGs(feriaNet);
+
+      // Desglose CP
+      document.getElementById("dash-cp-directa").innerText = formatGs(cpDirecta);
+      document.getElementById("dash-cp-redes").innerText = formatGs(cpRedes);
+      document.getElementById("dash-cp-web").innerText = formatGs(cpWeb);
+      document.getElementById("dash-cp-total").innerText = formatGs(cpTotal);
+      document.getElementById("dash-cp-comm").innerText = formatGs(cpComm);
+
+      // Desglose Areguá
+      document.getElementById("dash-aregua-stock-val").innerText = formatGs(1840000 - areguaSalesTotal);
+      document.getElementById("dash-aregua-sales").innerText = formatGs(areguaSalesTotal);
+
+      // Resumen Financiero
+      document.getElementById("dash-fin-total-sales").innerText = formatGs(globalSales);
+      document.getElementById("dash-fin-commissions").innerText = formatGs(globalCommissions);
+      document.getElementById("dash-fin-mesas").innerText = formatGs(totalMesaCost);
+      document.getElementById("dash-fin-saldo").innerText = formatGs(globalSales - globalCommissions - totalMesaCost);
+    }
+
+    /* Fotos en tarjetas de Packs */
+    function renderPackThumbs() {
+      Object.entries(PACK_DEFINITIONS).forEach(([key, pack]) => {
+        const btn = document.querySelector(`button[onclick="addToCart('${key}')"]`);
+        if (!btn) return;
+        const card = btn.parentElement;
+        if (card.querySelector(".pack-thumbs")) return;
+        const strip = document.createElement("div");
+        strip.className = "pack-thumbs flex gap-1.5 mt-3";
+        strip.innerHTML = pack.items.map(id => productImg(id, "w-12 h-12 rounded-lg border border-white shadow-sm")).join("");
+        card.insertBefore(strip, btn);
+      });
+    }
+
+    /* 2. Render POS (Catálogo interactivo) */
+    function renderPOSProducts() {
+      const container = document.getElementById("pos-product-grid");
+      container.innerHTML = "";
+
+      products.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "bg-slate-50 border border-slate-200 hover:border-chili-400 rounded-xl p-3 flex flex-col justify-between transition hover:shadow-sm";
+        card.innerHTML = `
+          <div>
+            <div class="flex justify-between items-center text-xs text-slate-500 mb-1">
+              <span class="font-bold">#${p.id}</span>
+              <span class="font-bold ${p.stock <= 5 ? 'text-red-600 bg-red-100 px-1.5 py-0.5 rounded' : 'text-slate-600'}">Stock: ${p.stock}</span>
+            </div>
+            ${productImg(p.id, "w-full h-28 sm:h-32 rounded-lg mb-2")}
+            <h4 class="font-bold text-slate-800 text-xs sm:text-sm line-clamp-2 leading-tight">${p.name}</h4>
+          </div>
+          <div class="mt-3 pt-2 border-t border-slate-200 flex items-center justify-between">
+            <span class="font-extrabold text-chili-700 text-xs sm:text-sm">${formatGs(p.price)}</span>
+            <button onclick="addToCart('prod_${p.id}')" ${p.stock <= 0 ? 'disabled class="opacity-40 cursor-not-allowed bg-slate-300 text-slate-600 px-2 py-1 rounded text-xs"' : 'class="bg-chili-600 hover:bg-chili-700 active:scale-95 text-white font-bold p-1.5 rounded-lg text-xs flex items-center gap-1 shadow"'}>
+              <i data-lucide="plus" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    /* 3. Lógica de Carrito de Ventas */
+    function addToCart(typeId) {
+      if (typeId.startsWith("pack_")) {
+        const packKey = typeId;
+        const pack = PACK_DEFINITIONS[packKey];
+        if (!pack) return;
+
+        // Calcular unidades necesarias de cada producto para este pack (soporta múltiples del mismo ítem)
+        const packNeeded = {};
+        pack.items.forEach(id => {
+          packNeeded[id] = (packNeeded[id] || 0) + 1;
+        });
+
+        // Contar unidades ya comprometidas en el carrito
+        const committed = {};
+        cart.forEach(item => {
+          if (item.isPack) {
+            item.items.forEach(id => {
+              committed[id] = (committed[id] || 0) + item.qty;
+            });
+          } else {
+            committed[item.id] = (committed[item.id] || 0) + item.qty;
+          }
+        });
+
+        // Validar stock disponible
+        for (const [prodId, needed] of Object.entries(packNeeded)) {
+          const prod = products.find(p => p.id === prodId);
+          const totalRequired = (committed[prodId] || 0) + needed;
+          if (!prod || prod.stock < totalRequired) {
+            alert(`Stock insuficiente de "${prod ? prod.name : prodId}" para agregar ${pack.name}. En Stock: ${prod ? prod.stock : 0}, requerido en total: ${totalRequired}`);
+            return;
+          }
+        }
+
+        const existing = cart.find(item => item.isPack && item.packKey === packKey);
+        if (existing) {
+          existing.qty++;
+        } else {
+          cart.push({
+            isPack: true,
+            packKey: packKey,
+            id: pack.id,
+            name: pack.name,
+            price: pack.price,
+            items: pack.items,
+            itemLabels: pack.itemLabels,
+            qty: 1
+          });
+        }
+      } else if (typeId.startsWith("prod_")) {
+        const prodId = typeId.replace("prod_", "");
+        const prod = products.find(p => p.id === prodId);
+        if (!prod) return;
+
+        if (prod.stock <= 0) {
+          alert(`El producto "${prod.name}" no tiene stock disponible.`);
+          return;
+        }
+
+        // Contar unidades ya en carrito
+        let committedQty = 0;
+        cart.forEach(item => {
+          if (item.isPack) {
+            item.items.forEach(id => {
+              if (id === prod.id) committedQty += item.qty;
+            });
+          } else if (item.id === prod.id) {
+            committedQty += item.qty;
+          }
+        });
+
+        if (prod.stock < committedQty + 1) {
+          alert(`No puedes agregar más unidades de "${prod.name}". Stock total disponible: ${prod.stock}, ya en carrito: ${committedQty}`);
+          return;
+        }
+
+        const existing = cart.find(item => !item.isPack && item.id === prod.id);
+        if (existing) {
+          existing.qty++;
+        } else {
+          cart.push({
+            isPack: false,
+            id: prod.id,
+            name: prod.name,
+            price: prod.price,
+            qty: 1
+          });
+        }
+      }
+      updateCartDisplay();
+    }
+
+    function changeCartQty(index, delta) {
+      if (!cart[index]) return;
+      cart[index].qty += delta;
+      if (cart[index].qty <= 0) {
+        cart.splice(index, 1);
+      }
+      updateCartDisplay();
+    }
+
+    function clearCart() {
+      cart = [];
+      updateCartDisplay();
+    }
+
+    function updateCartDisplay() {
+      const container = document.getElementById("cart-items-container");
+      const totalDisplay = document.getElementById("cart-total-display");
+      const commHint = document.getElementById("cart-comision-hint");
+      const btnConfirm = document.getElementById("btn-confirm-sale");
+
+      container.innerHTML = "";
+
+      if (cart.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center italic">El carrito está vacío. Agrega productos o packs arriba.</p>`;
+        totalDisplay.innerText = "Gs 0";
+        commHint.innerText = "Comisión Jazmín calculada: Gs 0";
+        btnConfirm.disabled = true;
+        btnConfirm.classList.add("opacity-50", "cursor-not-allowed");
+        return;
+      }
+
+      btnConfirm.disabled = false;
+      btnConfirm.classList.remove("opacity-50", "cursor-not-allowed");
+
+      let total = 0;
+
+      cart.forEach((item, idx) => {
+        const subtotal = item.price * item.qty;
+        total += subtotal;
+
+        const row = document.createElement("div");
+        row.className = "py-2.5 flex items-center justify-between text-xs";
+
+        if (item.isPack) {
+          const desc = item.itemLabels || item.items.join(", ");
+          row.innerHTML = `
+            <div class="flex-1 pr-2">
+              <div class="flex items-center gap-1.5">
+                <span class="badge-pack text-[10px] font-black text-white px-1.5 py-0.2 rounded">PACK</span>
+                <span class="font-extrabold text-amber-300">${item.name}</span>
+              </div>
+              <p class="text-[10px] text-slate-400">Descuenta: ${desc}</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-1 bg-slate-800 rounded-lg p-1 border border-slate-700">
+                <button onclick="changeCartQty(${idx}, -1)" class="w-6 h-6 flex items-center justify-center font-bold text-slate-300 hover:text-white">-</button>
+                <span class="w-6 text-center font-black text-white">${item.qty}</span>
+                <button onclick="changeCartQty(${idx}, 1)" class="w-6 h-6 flex items-center justify-center font-bold text-slate-300 hover:text-white">+</button>
+              </div>
+              <div class="text-right min-w-[70px]">
+                <div class="font-bold text-white">${formatGs(subtotal)}</div>
+              </div>
+            </div>
+          `;
+        } else {
+          row.innerHTML = `
+            <div class="flex-1 pr-2">
+              <span class="font-semibold text-slate-200">${item.name}</span>
+              <p class="text-[10px] text-slate-400">Cód: ${item.id} • Unit: ${formatGs(item.price)}</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-1 bg-slate-800 rounded-lg p-1 border border-slate-700">
+                <button onclick="changeCartQty(${idx}, -1)" class="w-6 h-6 flex items-center justify-center font-bold text-slate-300 hover:text-white">-</button>
+                <span class="w-6 text-center font-black text-white">${item.qty}</span>
+                <button onclick="changeCartQty(${idx}, 1)" class="w-6 h-6 flex items-center justify-center font-bold text-slate-300 hover:text-white">+</button>
+              </div>
+              <div class="text-right min-w-[70px]">
+                <div class="font-bold text-white">${formatGs(subtotal)}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        container.appendChild(row);
+      });
+
+      totalDisplay.innerText = formatGs(total);
+
+      // Calcular comisión estimada según punto de venta
+      const punto = document.getElementById("pos-punto").value;
+      let comisionRate = 0;
+      let comisionText = "";
+      if (punto === "feria") {
+        comisionRate = 0.15;
+        comisionText = "15% Ferias (Plaza Italia)";
+      } else if (punto === "cp") {
+        comisionRate = 0.10;
+        comisionText = "10% Ventas CP";
+      } else {
+        comisionRate = 0;
+        comisionText = "0% Areguá (Consignación)";
+      }
+      const comisionVal = Math.round(total * comisionRate);
+      commHint.innerText = `Comisión Jazmín (${comisionText}): ${formatGs(comisionVal)}`;
+    }
+
+    /* 4. Confirmación y Registro de Venta */
+    function confirmSale() {
+      if (cart.length === 0) return;
+
+      const punto = document.getElementById("pos-punto").value;
+      const canal = (punto === "cp") ? document.getElementById("pos-canal").value : null;
+      const metodoPago = document.getElementById("pos-metodo-pago").value;
+      const fecha = document.getElementById("pos-fecha").value || todayLocal();
+
+      // Verificación final de stock consolidada
+      const requiredMap = {};
+      cart.forEach(item => {
+        if (item.isPack) {
+          item.items.forEach(id => {
+            requiredMap[id] = (requiredMap[id] || 0) + item.qty;
+          });
+        } else {
+          requiredMap[item.id] = (requiredMap[item.id] || 0) + item.qty;
+        }
+      });
+
+      for (const [prodId, reqQty] of Object.entries(requiredMap)) {
+        const p = products.find(prod => prod.id === prodId);
+        if (!p || p.stock < reqQty) {
+          alert(`Stock insuficiente para "${p ? p.name : prodId}". Disponible en stock: ${p ? p.stock : 0}, requerido en la venta: ${reqQty}`);
+          return;
+        }
+      }
+
+      // Calcular totales
+      let totalVenta = 0;
+      const itemsSnapshot = [];
+
+      // Descontar del stock central
+      cart.forEach(item => {
+        const subtotal = item.price * item.qty;
+        totalVenta += subtotal;
+
+        if (item.isPack) {
+          // Descontar cada producto individual del pack
+          item.items.forEach(prodId => {
+            const p = products.find(prod => prod.id === prodId);
+            if (p) {
+              p.stock -= item.qty;
+            }
+          });
+
+          itemsSnapshot.push({
+            isPack: true,
+            packName: item.name,
+            packKey: item.packKey,
+            qty: item.qty,
+            unitPrice: item.price,
+            subtotal: subtotal,
+            deductedItems: item.items
+          });
+        } else {
+          const p = products.find(prod => prod.id === item.id);
+          if (p) {
+            p.stock -= item.qty;
+          }
+          itemsSnapshot.push({
+            isPack: false,
+            id: item.id,
+            name: item.name,
+            qty: item.qty,
+            unitPrice: item.price,
+            subtotal: subtotal
+          });
+        }
+      });
+
+      // Calcular comisión
+      let comisionRate = 0;
+      if (punto === "feria") comisionRate = 0.15;
+      else if (punto === "cp") comisionRate = 0.10;
+      const comision = Math.round(totalVenta * comisionRate);
+
+      // Crear objeto venta
+      const saleObj = {
+        id: "V-" + Date.now().toString().slice(-6),
+        fecha: fecha,
+        timestamp: new Date().toISOString(),
+        punto: punto,
+        canal: canal,
+        metodoPago: metodoPago,
+        items: itemsSnapshot,
+        total: totalVenta,
+        comision: comision,
+        encargada: "Jazmín Rodríguez"
+      };
+
+      sales.unshift(saleObj);
+
+      // Guardar cambios
+      saveProducts();
+      saveSales();
+
+      // Limpiar y actualizar
+      cart = [];
+      updateCartDisplay();
+      renderAll();
+
+      showToast(`¡Venta #${saleObj.id} registrada exitosamente!`);
+    }
+
+    /* 5. Render Stock Central */
+    function renderStockTable() {
+      const tbody = document.getElementById("stock-table-body");
+      tbody.innerHTML = "";
+
+      let totalQty = 0;
+      let totalVal100 = 0;
+
+      products.forEach(p => {
+        const val100 = p.stock * p.price;
+        const val80 = Math.round(val100 * 0.8);
+        totalQty += p.stock;
+        totalVal100 += val100;
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50 transition";
+        tr.innerHTML = `
+          <td class="p-3 font-mono font-bold text-slate-500">${p.id}</td>
+          <td class="p-3">
+            <div class="flex items-center gap-2">
+              ${productImg(p.id, "w-10 h-10 rounded-md border border-slate-200 shrink-0")}
+              <span class="font-bold text-slate-900">${p.name}</span>
+            </div>
+          </td>
+          <td class="p-3 text-right font-medium text-slate-600">${formatGs(p.price)}</td>
+          <td class="p-3 text-center">
+            <span class="font-extrabold px-2.5 py-1 rounded-full text-xs ${p.stock <= 5 ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-800'}">
+              ${p.stock} unids.
+            </span>
+          </td>
+          <td class="p-3 text-right font-bold text-slate-900">${formatGs(val100)}</td>
+          <td class="p-3 text-right font-bold text-emerald-700">${formatGs(val80)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const totalVal80 = Math.round(totalVal100 * 0.8);
+      document.getElementById("stock-total-qty").innerText = totalQty + " unids.";
+      document.getElementById("stock-total-val100").innerText = formatGs(totalVal100);
+      document.getElementById("stock-total-val80").innerText = formatGs(totalVal80);
+
+      // Render bitácora de ajustes
+      const logContainer = document.getElementById("stock-adjustments-log");
+      if (adjustments.length === 0) {
+        logContainer.innerHTML = `<p class="text-slate-400 italic">No hay correcciones manuales registradas.</p>`;
+      } else {
+        logContainer.innerHTML = "";
+        adjustments.slice(0, 10).forEach(adj => {
+          const div = document.createElement("div");
+          div.className = "p-2 bg-slate-50 border border-slate-200 rounded-lg flex justify-between items-center";
+          div.innerHTML = `
+            <div>
+              <span class="font-bold text-slate-800">${adj.fecha} - ${adj.productName}</span>
+              <p class="text-slate-500">Motivo: ${adj.motivo} (${adj.detalle})</p>
+            </div>
+            <span class="font-mono font-bold text-slate-700">${adj.prevStock} ➔ ${adj.newStock}</span>
+          `;
+          logContainer.appendChild(div);
+        });
+      }
+    }
+
+    /* 6. Modal y Registro de Ajuste Manual de Stock */
+    function populateAjusteSelect() {
+      const select = document.getElementById("ajuste-producto-select");
+      select.innerHTML = "";
+      products.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.innerText = `#${p.id} - ${p.name} (Stock Actual: ${p.stock})`;
+        select.appendChild(opt);
+      });
+    }
+
+    function saveStockAdjustment() {
+      const prodId = document.getElementById("ajuste-producto-select").value;
+      const tipo = document.getElementById("ajuste-tipo").value;
+      const cantidad = parseInt(document.getElementById("ajuste-cantidad").value);
+      const motivo = document.getElementById("ajuste-motivo").value.trim();
+
+      if (isNaN(cantidad) || cantidad < 0) {
+        alert("Por favor ingrese una cantidad válida mayor o igual a 0.");
+        return;
+      }
+      if (!motivo) {
+        alert("Es obligatorio ingresar un motivo o justificación para la auditoría.");
+        return;
+      }
+
+      const p = products.find(prod => prod.id === prodId);
+      if (!p) return;
+
+      const prevStock = p.stock;
+      let newStock = prevStock;
+
+      if (tipo === "set") {
+        newStock = cantidad;
+      } else if (tipo === "add") {
+        newStock = prevStock + cantidad;
+      } else if (tipo === "subtract") {
+        newStock = Math.max(0, prevStock - cantidad);
+      }
+
+      p.stock = newStock;
+
+      const adjRecord = {
+        id: "ADJ-" + Date.now().toString().slice(-6),
+        fecha: new Date().toLocaleDateString("es-PY"),
+        productId: p.id,
+        productName: p.name,
+        prevStock: prevStock,
+        newStock: newStock,
+        motivo: motivo,
+        detalle: tipo === "set" ? `Fijado en ${cantidad}` : (tipo === "add" ? `+${cantidad}` : `-${cantidad}`),
+        user: "Jazmín Rodríguez"
+      };
+
+      adjustments.unshift(adjRecord);
+
+      saveProducts();
+      saveAdjustments();
+
+      closeModal("modalAjusteStock");
+      renderAll();
+      showToast("Ajuste manual de stock registrado.");
+    }
+
+    /* 7. Render Ferias */
+    function renderFeriasTab() {
+      const feriaSales = sales.filter(s => s.punto === "feria");
+      let totalSales = 0;
+      let totalComm = 0;
+
+      const tbody = document.getElementById("feria-sales-tbody");
+      tbody.innerHTML = "";
+
+      if (feriaSales.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 italic">No hay ventas registradas en Ferias aún.</td></tr>`;
+      } else {
+        feriaSales.forEach(s => {
+          totalSales += s.total;
+          totalComm += s.comision;
+
+          const itemsText = s.items.map(it => {
+            if (it.isPack) return `<span class="badge-pack text-white text-[10px] font-bold px-1.5 py-0.2 rounded mr-1">PACK</span> ${it.qty}x ${it.packName}`;
+            return `${it.qty}x ${it.name}`;
+          }).join("<br>");
+
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-50 transition";
+          const sipBtn = s.id === "FERIA-0310" ? 
+            `<button onclick="showResumenFeria('${s.fecha}')" class="mt-1 text-[10px] bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold px-2 py-0.5 rounded flex items-center gap-1">
+               <i data-lucide="receipt" class="w-3 h-3"></i> Ver 8 SIP + Efec
+             </button>` : '';
+
+          tr.innerHTML = `
+            <td class="p-2.5 font-bold text-slate-700">${s.fecha}<br><span class="font-normal text-slate-400 text-[10px]">${s.id}</span></td>
+            <td class="p-2.5">${itemsText}</td>
+            <td class="p-2.5">
+              <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-bold">${s.metodoPago}</span>
+              ${sipBtn}
+            </td>
+            <td class="p-2.5 text-right font-black text-slate-900">${formatGs(s.total)}</td>
+            <td class="p-2.5 text-right font-bold text-purple-700">${formatGs(s.comision)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // Costo mesa ferias: Gs 35.000 x fecha
+      const feriaFechas = [...new Set(feriaSales.map(s => s.fecha))];
+      const mesasCost = (feriaFechas.length > 0 ? feriaFechas.length : (totalSales > 0 ? 1 : 0)) * 35000;
+      const net = totalSales - totalComm - mesasCost;
+
+      document.getElementById("feria-tab-sales").innerText = formatGs(totalSales);
+      document.getElementById("feria-tab-comm").innerText = formatGs(totalComm);
+      const mesasCostEl = document.getElementById("feria-tab-mesas-cost");
+      if (mesasCostEl) mesasCostEl.innerText = formatGs(mesasCost);
+      document.getElementById("feria-tab-net").innerText = formatGs(net);
+      renderFeriaCalendar();
+    }
+
+    /* 8. Render CP Tab */
+    function renderCPTab() {
+      const cpSales = sales.filter(s => s.punto === "cp");
+      let dir = 0, red = 0, web = 0, total = 0;
+
+      const tbody = document.getElementById("cp-sales-tbody");
+      tbody.innerHTML = "";
+
+      if (cpSales.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 italic">No hay ventas registradas en Centro de Producción aún.</td></tr>`;
+      } else {
+        cpSales.forEach(s => {
+          total += s.total;
+          if (s.canal === "directa") dir += s.total;
+          else if (s.canal === "redes") red += s.total;
+          else if (s.canal === "web") web += s.total;
+
+          const itemsText = s.items.map(it => {
+            if (it.isPack) return `<span class="badge-pack text-white text-[10px] font-bold px-1.5 py-0.2 rounded mr-1">PACK</span> ${it.qty}x ${it.packName}`;
+            return `${it.qty}x ${it.name}`;
+          }).join(", ");
+
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-50 transition";
+          tr.innerHTML = `
+            <td class="p-2.5 font-bold text-slate-700">${s.fecha}</td>
+            <td class="p-2.5"><span class="bg-blue-50 text-blue-800 font-bold px-2 py-0.5 rounded capitalize">${s.canal || 'Directa'}</span></td>
+            <td class="p-2.5 max-w-[200px] truncate" title="${itemsText}">${itemsText}</td>
+            <td class="p-2.5"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-bold">${s.metodoPago}</span></td>
+            <td class="p-2.5 text-right font-black text-slate-900">${formatGs(s.total)}</td>
+            <td class="p-2.5 text-right font-bold text-purple-700">${formatGs(s.comision)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      const comm = Math.round(total * 0.10);
+
+      document.getElementById("cp-tab-directa").innerText = formatGs(dir);
+      document.getElementById("cp-tab-redes").innerText = formatGs(red);
+      document.getElementById("cp-tab-web").innerText = formatGs(web);
+      document.getElementById("cp-tab-total").innerText = formatGs(total);
+      document.getElementById("cp-tab-comm").innerText = formatGs(comm);
+    }
+
+    /* 9. Render Areguá Tab */
+    function renderAreguaTab() {
+      const container = document.getElementById("aregua-rendiciones-list");
+      container.innerHTML = "";
+
+      if (areguaRendiciones.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 italic">No hay rendiciones registradas aún para los lotes 13/09 y 08/10.</p>`;
+      } else {
+        areguaRendiciones.forEach(r => {
+          const div = document.createElement("div");
+          div.className = "p-3 bg-slate-50 border border-slate-200 rounded-xl flex justify-between items-center";
+          div.innerHTML = `
+            <div>
+              <span class="font-bold text-slate-900">${r.fecha} - Rendición Recibida</span>
+              <p class="text-slate-500">${r.observaciones || 'Sin observaciones'} (${r.metodoPago})</p>
+            </div>
+            <span class="font-black text-emerald-700 text-sm">${formatGs(r.monto)}</span>
+          `;
+          container.appendChild(div);
+        });
+      }
+    }
+
+    function saveAreguaRendicion() {
+      const monto = parseInt(document.getElementById("aregua-rendicion-monto").value);
+      const metodoPago = document.getElementById("aregua-rendicion-pago").value;
+      const obs = document.getElementById("aregua-rendicion-obs").value.trim();
+
+      if (isNaN(monto) || monto <= 0) {
+        alert("Por favor ingrese un monto válido mayor a 0.");
+        return;
+      }
+
+      const record = {
+        id: "REND-ARG-" + Date.now().toString().slice(-6),
+        fecha: new Date().toLocaleDateString("es-PY"),
+        monto: monto,
+        metodoPago: metodoPago,
+        observaciones: obs,
+        encargada: "Jazmín Rodríguez"
+      };
+
+      areguaRendiciones.unshift(record);
+      saveAregua();
+
+      closeModal("modalRendirAregua");
+      renderAll();
+      showToast("Rendición de Areguá registrada exitosamente.");
+    }
+
+    /* 10. Render Historial */
+    function renderHistoryTable() {
+      const filter = document.getElementById("history-filter-punto").value;
+      const tbody = document.getElementById("history-table-body");
+      tbody.innerHTML = "";
+
+      let list = sales;
+      if (filter !== "all") {
+        list = sales.filter(s => s.punto === filter);
+      }
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400 italic">No hay ventas registradas bajo este criterio.</td></tr>`;
+        return;
+      }
+
+      list.forEach(s => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+
+        let puntoLabel = "";
+        if (s.punto === "feria") puntoLabel = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900">🎪 Feria</span>';
+        else if (s.punto === "cp") puntoLabel = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-900">🏭 CP (${s.canal || 'Directa'})</span>`;
+        else puntoLabel = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-900">🏺 Areguá</span>';
+
+        const itemsSummary = s.items.map(it => {
+          if (it.isPack) {
+            return `<span class="badge-pack text-white text-[10px] font-black px-1.5 py-0.2 rounded mr-1">PACK</span> <b>${it.qty}x ${it.packName}</b> (${it.deductedItems.join(",")})`;
+          }
+          return `${it.qty}x ${it.name}`;
+        }).join("<br>");
+
+        tr.innerHTML = `
+          <td class="p-2.5 font-mono text-slate-500 font-bold">${s.id}<br><span class="text-[10px] text-slate-400 font-normal">${s.fecha}</span></td>
+          <td class="p-2.5">${puntoLabel}</td>
+          <td class="p-2.5">${itemsSummary}</td>
+          <td class="p-2.5"><span class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded font-bold text-[10px]">${s.metodoPago}</span></td>
+          <td class="p-2.5 text-right font-black text-slate-900">${formatGs(s.total)}</td>
+          <td class="p-2.5 text-right font-bold text-purple-700">${formatGs(s.comision)}</td>
+          <td class="p-2.5 text-center">
+            <button onclick="revertSale('${s.id}')" title="Anular venta y reintegrar stock" class="text-red-500 hover:text-red-700 p-1">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterHistory() {
+      renderHistoryTable();
+      lucide.createIcons();
+    }
+
+    function revertSale(saleId) {
+      if (!confirm(`¿Estás seguro de anular la venta ${saleId}? El stock de los productos y packs será reintegrado automáticamente.`)) {
+        return;
+      }
+
+      const saleIdx = sales.findIndex(s => s.id === saleId);
+      if (saleIdx === -1) return;
+
+      const sale = sales[saleIdx];
+
+      // Reintegrar stock (excepto ventas puramente históricas de registro)
+      if (sale.id !== "FERIA-0310") {
+        sale.items.forEach(it => {
+          if (it.isPack) {
+            it.deductedItems.forEach(prodId => {
+              const p = products.find(prod => prod.id === prodId);
+              if (p) p.stock += it.qty;
+            });
+          } else {
+            const p = products.find(prod => prod.id === it.id);
+            if (p) p.stock += it.qty;
+          }
+        });
+        saveProducts();
+      }
+
+      // Eliminar venta
+      sales.splice(saleIdx, 1);
+
+      saveProducts();
+      saveSales();
+      renderAll();
+      showToast("Venta anulada y stock reintegrado.");
+    }
+
+    /* ========================================================
+       GENERADORES DE REPORTES WHATSAPP (CON URL ENCODE)
+       ======================================================== */
+    function openWhatsApp(text) {
+      const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+      window.open(url, "_blank");
+    }
+
+    // 1. Reporte General Mensual
+    function sendGeneralWhatsAppReport() {
+      let totalUnits = 0;
+      let totalValue100 = 0;
+      products.forEach(p => {
+        totalUnits += p.stock;
+        totalValue100 += p.stock * p.price;
+      });
+      const totalValue80 = Math.round(totalValue100 * 0.8);
+
+      let globalSales = 0;
+      let globalCommissions = 0;
+      sales.forEach(s => {
+        globalSales += s.total;
+        globalCommissions += s.comision;
+      });
+
+      const feriaSales = sales.filter(s => s.punto === "feria").reduce((acc, s) => acc + s.total, 0);
+      const cpSales = sales.filter(s => s.punto === "cp").reduce((acc, s) => acc + s.total, 0);
+      const saldoDonWaldino = globalSales - globalCommissions;
+
+      const text = 
+`🌶️ *DON WALDINO - REPORTE GENERAL DEL MES* 🌶️
+👤 *Encargada:* Jazmín Rodríguez
+📅 *Fecha:* ${new Date().toLocaleDateString("es-PY")}
+
+📦 *INVENTARIO Y STOCK CENTRAL:*
+• Unidades en Stock: ${totalUnits} unids.
+• Valoración Total (100%): ${formatGs(totalValue100)}
+• Valoración Estimada (-20%): ${formatGs(totalValue80)}
+
+💰 *BALANCE DE VENTAS:*
+• Total Ventas del Mes: ${formatGs(globalSales)}
+  - 🎪 Ferias Plaza Italia: ${formatGs(feriaSales)}
+  - 🏭 Centro Producción: ${formatGs(cpSales)}
+• Total Comisiones Jazmín: ${formatGs(globalCommissions)}
+• 💵 *Saldo Líquido Don Waldino:* ${formatGs(saldoDonWaldino)}
+
+🏺 *AREGUÁ:*
+• Stock en consignación: 54 unids (Lotes 13/09 y 08/10)
+• Valoración: Gs 1.840.000 (Pendiente de rendición)
+
+_Generado desde la App Oficial Don Waldino_`;
+
+      openWhatsApp(text);
+    }
+
+    // 2. Reporte Diario de Feria (Plaza Italia)
+    function sendFeriaWhatsAppReport(fecha) {
+      if (!fecha) {
+        const fechas = getFeriaFechas();
+        if (fechas.length === 0) { alert("No hay ventas de feria registradas."); return; }
+        fecha = fechas[fechas.length - 1];
+      }
+      openWhatsApp(buildFeriaWhatsApp(fecha));
+    }
+
+    // 3. Reporte Semanal CP (Sábados)
+    function sendCPWhatsAppReport() {
+      const cpSales = sales.filter(s => s.punto === "cp");
+      let dir = 0, red = 0, web = 0;
+      cpSales.forEach(s => {
+        if (s.canal === "directa") dir += s.total;
+        else if (s.canal === "redes") red += s.total;
+        else if (s.canal === "web") web += s.total;
+      });
+      const total = dir + red + web;
+      const comm = Math.round(total * 0.10);
+
+      const text = 
+`🏭 *DON WALDINO - REPORTE SEMANAL CENTRO DE PRODUCCIÓN (CP)* 🏭
+👤 *Encargada:* Jazmín Rodríguez
+📅 *Periodo:* Cierre Semanal (${new Date().toLocaleDateString("es-PY")})
+
+📊 *VENTAS POR CANAL:*
+• Ventas Directas: ${formatGs(dir)}
+• Ventas Redes Sociales: ${formatGs(red)}
+• Ventas Página WEB: ${formatGs(web)}
+-------------------------
+💰 *TOTAL VENTAS CP:* *${formatGs(total)}*
+💜 *Comisión Jazmín (10%):* *${formatGs(comm)}*
+💵 *Saldo Don Waldino:* *${formatGs(total - comm)}*
+
+_Reporte semanal de Centro de Producción_`;
+
+      openWhatsApp(text);
+    }
+
+    // 4. Reporte Quincenal Areguá
+    function sendAreguaWhatsAppReport() {
+      let totalRendido = 0;
+      areguaRendiciones.forEach(r => totalRendido += r.monto);
+      const saldoPendiente = 1840000 - totalRendido;
+
+      const text = 
+`🏺 *DON WALDINO - CONTROL Y RENDICIÓN AREGUÁ* 🏺
+👤 *Encargada:* Jazmín Rodríguez
+📅 *Reporte Quincenal:* ${new Date().toLocaleDateString("es-PY")}
+
+📦 *LOTES ENTREGADOS EN CONSIGNACIÓN:*
+• Lote 13/09: 30 unidades (Gs 1.000.000)
+• Lote 08/10: 24 unidades (Gs 840.000)
+• Total Frascos Entregados: 54 unidades
+• Valor Total Consignado: *Gs 1.840.000*
+
+💰 *ESTADO DE CUENTA:*
+• Total Rendido Recibido: ${formatGs(totalRendido)}
+• *Saldo Pendiente por Rendir:* *${formatGs(saldoPendiente)}*
+
+_Control de Lotes y Consignación Areguá_`;
+
+      openWhatsApp(text);
+    }
+
+    // 5. Reporte de Stock Central
+    function sendStockWhatsAppReport() {
+      let lines = [];
+      let totalUnits = 0;
+      let totalVal = 0;
+
+      products.forEach(p => {
+        lines.push(`• ${p.name}: *${p.stock} unids* (${formatGs(p.price)} c/u)`);
+        totalUnits += p.stock;
+        totalVal += p.stock * p.price;
+      });
+
+      const text = 
+`📦 *DON WALDINO - INVENTARIO DE STOCK CENTRAL* 📦
+👤 *Encargada:* Jazmín Rodríguez
+📅 *Fecha:* ${new Date().toLocaleDateString("es-PY")}
+
+${lines.join("\n")}
+
+-------------------------
+📊 *TOTALES:*
+• Total Frascos: *${totalUnits} unidades*
+• Valor Total (100%): *${formatGs(totalVal)}*
+• Estimado (-20%): *${formatGs(Math.round(totalVal * 0.8))}*
+
+_Stock automático - Don Waldino_`;
+
+      openWhatsApp(text);
+    }
+
+    /* ========================================================
+       MODALES Y UTILIDADES DE RESPALDO (EXPORT / IMPORT)
+       ======================================================== */
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.remove("hidden");
+      if (id === "modalDegustacion") {
+        populateDegustSelect();
+        const fechaEl = document.getElementById("degust-fecha");
+        if (fechaEl) fechaEl.value = todayLocal();
+      }
+      if (id === "modalCierreFeria") {
+        openModal_CierreFeria_Init();
+      }
+      lucide.createIcons();
+    }
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add("hidden");
+    }
+
+    function exportDataJSON() {
+      const backupData = {
+        products: products,
+        sales: sales,
+        adjustments: adjustments,
+        areguaRendiciones: areguaRendiciones,
+        degustaciones: degustaciones,
+        cierresFeria: cierresFeria,
+        exportDate: new Date().toISOString()
+      };
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `don_waldino_backup_${todayLocal()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast("Copia de seguridad descargada.");
+    }
+
+    function importDataJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.products && Array.isArray(data.products)) {
+            products = data.products;
+            sales = data.sales || [];
+            adjustments = data.adjustments || [];
+            areguaRendiciones = data.areguaRendiciones || [];
+            degustaciones = data.degustaciones || [];
+            cierresFeria = data.cierresFeria || [];
+            saveDegusts();
+            saveCierres();
+
+            saveProducts();
+            saveSales();
+            saveAdjustments();
+            saveAregua();
+
+            closeModal("modalSync");
+            renderAll();
+            showToast("Datos restaurados correctamente.");
+          } else {
+            alert("El archivo no tiene el formato válido de Don Waldino.");
+          }
+        } catch (err) {
+          alert("Error al leer el archivo JSON: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetToInitialDefaults() {
+      if (!confirm("¿Deseas restablecer el inventario al stock inicial fijado por Don Waldino? Esta acción reseteará los stocks.")) {
+        return;
+      }
+      products = JSON.parse(JSON.stringify(INITIAL_PRODUCTS));
+      saveProducts();
+      closeModal("modalSync");
+      renderAll();
+      showToast("Stock restablecido a valores iniciales.");
+    }
+
+    // Iniciar app al cargar ventana
+    window.addEventListener("DOMContentLoaded", init);
+
+    /* ========================================================
+       NUEVAS CONSTANTES DE ALMACENAMIENTO
+       ======================================================== */
+    const STORAGE_KEY_DEGUSTS = "dw_degusts_v1";
+    const STORAGE_KEY_CIERRES = "dw_cierres_v1";
+
+    /* ========================================================
+       DEGUSTACIONES / CORTESÍAS
+       ======================================================== */
+    let degustaciones = [];
+    let cierresFeria = [];
+
+    function loadDegusts() {
+      const stored = localStorage.getItem(STORAGE_KEY_DEGUSTS);
+      degustaciones = stored ? JSON.parse(stored) : [];
+    }
+    function saveDegusts() {
+      localStorage.setItem(STORAGE_KEY_DEGUSTS, JSON.stringify(degustaciones));
+    }
+    function loadCierres() {
+      const stored = localStorage.getItem(STORAGE_KEY_CIERRES);
+      cierresFeria = stored ? JSON.parse(stored) : [];
+    }
+    function saveCierres() {
+      localStorage.setItem(STORAGE_KEY_CIERRES, JSON.stringify(cierresFeria));
+    }
+
+    // Poblar el select de productos en el modal de degustación
+    function populateDegustSelect() {
+      const select = document.getElementById("degust-producto");
+      if (!select) return;
+      select.innerHTML = "";
+      products.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.innerText = `#${p.id} - ${p.name} (Stock: ${p.stock})`;
+        select.appendChild(opt);
+      });
+    }
+
+    // Helper: abrir modal degustación preseleccionando Feria
+    function openModalDegustFeria() {
+      const el = document.getElementById("degust-punto");
+      if (el) el.value = "feria";
+      openModal("modalDegustacion");
+    }
+
+    // Guardar Degustación
+    function saveDegustacion() {
+      const tipo = document.getElementById("degust-tipo").value;
+      const punto = document.getElementById("degust-punto").value;
+      const prodId = document.getElementById("degust-producto").value;
+      const cantidad = parseInt(document.getElementById("degust-cantidad").value);
+      const fechaVal = document.getElementById("degust-fecha").value || todayLocal();
+      const motivo = document.getElementById("degust-motivo").value.trim();
+
+      if (isNaN(cantidad) || cantidad <= 0) {
+        alert("Ingresá una cantidad válida mayor a 0.");
+        return;
+      }
+      if (!motivo) {
+        alert("El campo Observación / Motivo es obligatorio.");
+        return;
+      }
+
+      const prod = products.find(p => p.id === prodId);
+      if (!prod) return;
+
+      if (prod.stock < cantidad) {
+        alert(`Stock insuficiente de "${prod.name}". Disponible: ${prod.stock}, requerido: ${cantidad}.`);
+        return;
+      }
+
+      // Descontar del stock
+      const prevStock = prod.stock;
+      prod.stock -= cantidad;
+
+      // Registrar en degustaciones
+      const record = {
+        id: "DEGUST-" + Date.now().toString().slice(-6),
+        fecha: fechaVal,
+        timestamp: new Date().toISOString(),
+        tipo: tipo,
+        punto: punto,
+        productId: prodId,
+        productName: prod.name,
+        cantidad: cantidad,
+        prevStock: prevStock,
+        newStock: prod.stock,
+        motivo: motivo,
+        encargada: "Jazmín Rodríguez"
+      };
+
+      degustaciones.unshift(record);
+
+      // Registrar también en bitácora de ajustes
+      const adjRecord = {
+        id: "ADJ-" + record.id,
+        fecha: new Date().toLocaleDateString("es-PY"),
+        productId: prodId,
+        productName: prod.name,
+        prevStock: prevStock,
+        newStock: prod.stock,
+        motivo: `[${tipo}] ${motivo}`,
+        detalle: `-${cantidad} (${tipo})`,
+        user: "Jazmín Rodríguez",
+        tipo: "degustacion"
+      };
+      adjustments.unshift(adjRecord);
+
+      saveProducts();
+      saveDegusts();
+      saveAdjustments();
+
+      closeModal("modalDegustacion");
+      renderAll();
+      renderDegustBitacora();
+      showToast(`${tipo} registrada: ${cantidad}x ${prod.name} descontado del stock.`);
+    }
+
+    // Renderizar la sección de degustaciones en la tab de ferias
+    function renderFeriaDegusts() {
+      const container = document.getElementById("feria-degust-list");
+      if (!container) return;
+      const feriaDegusts = degustaciones.filter(d => d.punto === "feria");
+      if (feriaDegusts.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 italic">No hay degustaciones registradas en ferias.</p>`;
+        return;
+      }
+      container.innerHTML = "";
+      feriaDegusts.forEach(d => {
+        const div = document.createElement("div");
+        div.className = "p-3 bg-orange-50 border border-orange-200 rounded-xl flex items-center justify-between";
+        div.innerHTML = `
+          <div>
+            <div class="flex items-center gap-2 mb-0.5">
+              <span class="bg-orange-200 text-orange-900 text-[10px] font-black px-1.5 py-0.2 rounded">${d.tipo.toUpperCase()}</span>
+              <span class="font-bold text-slate-800 text-xs">${d.fecha} — ${d.productName}</span>
+            </div>
+            <p class="text-slate-500 text-[11px]">${d.motivo}</p>
+          </div>
+          <span class="font-black text-orange-700 text-sm ml-2">-${d.cantidad} ud${d.cantidad !== 1 ? 's' : ''}.</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Renderizar la bitácora de degustaciones en la tab de Stock
+    function renderDegustBitacora() {
+      const container = document.getElementById("stock-adjustments-log");
+      if (!container) return;
+      const allAdj = [...adjustments]; // adjustments ya incluye los de degustación
+      if (allAdj.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 italic">No hay correcciones manuales registradas.</p>`;
+        return;
+      }
+      container.innerHTML = "";
+      allAdj.slice(0, 15).forEach(adj => {
+        const isDegust = adj.tipo === "degustacion";
+        const div = document.createElement("div");
+        div.className = `p-2 border rounded-lg flex justify-between items-center ${isDegust ? 'bg-orange-50 border-orange-200' : 'bg-slate-50 border-slate-200'}`;
+        div.innerHTML = `
+          <div>
+            <div class="flex items-center gap-1.5">
+              ${isDegust ? '<span class="bg-orange-200 text-orange-900 text-[9px] font-black px-1 py-0.2 rounded">DEGUST</span>' : ''}
+              <span class="font-bold text-slate-800">${adj.fecha} — ${adj.productName}</span>
+            </div>
+            <p class="text-slate-500 text-[11px]">Motivo: ${adj.motivo} (${adj.detalle})</p>
+          </div>
+          <span class="font-mono font-bold text-slate-700 text-xs">${adj.prevStock} ➔ ${adj.newStock}</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    /* ========================================================
+       CIERRE DE FERIA
+       ======================================================== */
+    // Feria suspendidas (sin ventas ni costos)
+    const FERIAS_SUSPENDIDAS = { "2026-10-10": "Mal tiempo (lluvia)" };
+    const COSTO_MESA = 35000;
+    let cierreFechaPreset = null;
+
+    function getFeriaFechas() {
+      const set = new Set(sales.filter(s => s.punto === "feria").map(s => s.fecha));
+      cierresFeria.forEach(c => set.add(c.fecha));
+      return [...set].sort();
+    }
+
+    function isFeriaCerrada(fecha) {
+      return fecha === "2026-10-03" || cierresFeria.some(c => c.fecha === fecha);
+    }
+
+    // Calcula todo el resumen de una feria (ventas, productos, cobros, rendición)
+    function buildFeriaResumen(fecha) {
+      const ventas = sales.filter(s => s.punto === "feria" && s.fecha === fecha)
+        .sort((a, b) => (a.timestamp || "").localeCompare(b.timestamp || ""));
+      const cierre = cierresFeria.find(c => c.fecha === fecha) || null;
+      const total = ventas.reduce((a, s) => a + s.total, 0);
+      const comision = ventas.reduce((a, s) => a + (s.comision || 0), 0);
+
+      // Productos vendidos agrupados
+      const lineas = {};
+      let frascos = 0;
+      ventas.forEach(s => s.items.forEach(it => {
+        const key = it.isPack ? "PACK:" + it.packName : it.id;
+        if (!lineas[key]) lineas[key] = { isPack: !!it.isPack, id: it.id, name: it.isPack ? it.packName : it.name, qty: 0, subtotal: 0, items: it.deductedItems || [], notas: [] };
+        lineas[key].qty += it.qty;
+        lineas[key].subtotal += it.subtotal;
+        if (it.nota) lineas[key].notas.push(it.nota);
+        frascos += it.isPack ? it.qty * (it.deductedItems || []).length : it.qty;
+      }));
+
+      // Cobros registrados
+      let efectivoReg = 0;
+      const comprobantes = [];
+      ventas.forEach(s => {
+        if (s.detallePagos) {
+          efectivoReg += s.detallePagos.efectivo || 0;
+          (s.detallePagos.sipItems || []).forEach(txt => {
+            const m = txt.match(/Gs\s*([\d.]+)/);
+            comprobantes.push({ tipo: "SIP Transferencia", monto: m ? parseInt(m[1].replace(/\./g, "")) : 0, ref: txt.replace(/^Gs\s*[\d.]+\s*/, "") });
+          });
+        } else if (s.metodoPago === "Efectivo") {
+          efectivoReg += s.total;
+        } else {
+          comprobantes.push({ tipo: s.metodoPago === "POS" ? "POS / Tarjeta" : "Transferencia", monto: s.total, ref: s.id });
+        }
+      });
+      const transReg = comprobantes.reduce((a, c) => a + c.monto, 0);
+
+      const efectivo = cierre ? cierre.efectivo : efectivoReg;
+      const trans = cierre ? cierre.transferencias : transReg;
+      const diferencia = (efectivo + trans) - total;
+      const aEntregar = efectivo - comision; // negativo = Don Waldino le debe a Jazmín
+      const mesa = (cierre && cierre.costoMesa != null) ? cierre.costoMesa : (ventas.length ? COSTO_MESA : 0);
+      const degusts = degustaciones.filter(d => d.punto === "feria" && d.fecha === fecha);
+
+      return {
+        fecha, ventas, cierre, cerrada: isFeriaCerrada(fecha), total, comision,
+        lineas: Object.values(lineas), frascos, efectivo, trans, efectivoReg, transReg,
+        comprobantes, diferencia, aEntregar, mesa, neto: total - comision - mesa, degusts,
+        observaciones: cierre ? cierre.observaciones : (ventas.find(v => v.observacion) || {}).observacion || ""
+      };
+    }
+
+    // Tarjetas de estado por sábado
+    function renderFeriaCalendar() {
+      const grid = document.getElementById("feria-calendar-grid");
+      if (!grid) return;
+      const fechas = new Set(getFeriaFechas());
+      Object.keys(FERIAS_SUSPENDIDAS).forEach(f => fechas.add(f));
+      const hoy = todayLocal();
+      const lista = [...fechas].sort().slice(-5);
+      let html = lista.map(f => {
+        if (FERIAS_SUSPENDIDAS[f] && !sales.some(s => s.punto === "feria" && s.fecha === f)) {
+          return `
+          <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm opacity-80">
+            <div class="flex justify-between items-start">
+              <span class="text-[11px] font-bold text-slate-500">${diaFecha(f)}</span>
+              <span class="bg-slate-200 text-slate-700 text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1"><i data-lucide="cloud-rain" class="w-3 h-3"></i> SUSPENDIDA</span>
+            </div>
+            <h4 class="font-bold text-slate-800 text-sm mt-1">${FERIAS_SUSPENDIDAS[f]}</h4>
+            <p class="text-xs text-slate-500 mt-1">No se realizó la feria. Sin ventas ni costos.</p>
+          </div>`;
+        }
+        const r = buildFeriaResumen(f);
+        if (r.cerrada) {
+          return `
+          <div class="bg-white p-3 rounded-xl border-2 border-emerald-300 shadow-sm">
+            <div class="flex justify-between items-start">
+              <span class="text-[11px] font-bold text-slate-500">${diaFecha(f)}</span>
+              <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3"></i> CERRADA</span>
+            </div>
+            <p class="text-xs text-slate-600 mt-2">
+              • Venta Total: <b>${formatGs(r.total)}</b> (${r.frascos} frascos)<br>
+              • Efectivo: ${formatGs(r.efectivo)}<br>
+              • Transf. / POS: ${formatGs(r.trans)}<br>
+              • Comisión Jazmín (15%): <b>${formatGs(r.comision)}</b>
+            </p>
+            <div class="mt-2 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+              <span class="text-emerald-700 font-bold">Neto Don Waldino:</span>
+              <span class="font-black text-emerald-800">${formatGs(r.neto)}</span>
+            </div>
+            <button onclick="showResumenFeria('${f}')" class="mt-2 w-full bg-slate-900 hover:bg-slate-700 text-white font-bold text-xs py-1.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="receipt" class="w-3.5 h-3.5"></i> Ver resumen</button>
+          </div>`;
+        }
+        return `
+          <div class="bg-gradient-to-br from-amber-50 to-orange-50 p-3 rounded-xl border-2 border-amber-400 shadow-sm">
+            <div class="flex justify-between items-start">
+              <span class="text-[11px] font-black text-amber-900">${diaFecha(f)}${f === hoy ? " (HOY)" : ""}</span>
+              <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 ${f === hoy ? "animate-pulse" : ""}"><i data-lucide="radio" class="w-3 h-3"></i> ABIERTA</span>
+            </div>
+            <p class="text-xs text-amber-950 mt-2">
+              • Vendido hasta ahora: <b>${formatGs(r.total)}</b> (${r.frascos} frascos)<br>
+              • ${r.ventas.length} venta${r.ventas.length !== 1 ? "s" : ""} registrada${r.ventas.length !== 1 ? "s" : ""}<br>
+              • Comisión Jazmín (15%): <b>${formatGs(r.comision)}</b>
+            </p>
+            <div class="mt-2 pt-2 border-t border-amber-200 grid grid-cols-2 gap-2">
+              <button onclick="goVentaFeria('${f}')" class="bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 font-bold text-xs py-1.5 rounded-lg">+ Venta</button>
+              <button onclick="openCierreFeria('${f}')" class="bg-chili-600 hover:bg-chili-700 text-white font-extrabold text-xs py-1.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="flag" class="w-3.5 h-3.5"></i> Cerrar feria</button>
+            </div>
+          </div>`;
+      }).join("");
+
+      // Si hoy no tiene feria cargada, tarjeta para empezar
+      if (!fechas.has(hoy)) {
+        const d = new Date();
+        const diasHastaSab = (6 - d.getDay() + 7) % 7;
+        const prox = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diasHastaSab);
+        const proxStr = `${prox.getFullYear()}-${String(prox.getMonth() + 1).padStart(2, "0")}-${String(prox.getDate()).padStart(2, "0")}`;
+        html += `
+          <div class="bg-white p-3 rounded-xl border-2 border-dashed border-slate-300">
+            <span class="text-[11px] font-bold text-slate-500">${diasHastaSab === 0 ? "HOY — Sábado " + fmtFecha(proxStr) : "Próxima feria: Sábado " + fmtFecha(proxStr)}</span>
+            <p class="text-xs text-slate-500 mt-1">La feria se abre sola al registrar la primera venta del día en Feria.</p>
+            <button onclick="goVentaFeria('${diasHastaSab === 0 ? proxStr : hoy}')" class="mt-2 w-full bg-chili-600 hover:bg-chili-700 text-white font-extrabold text-xs py-1.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Registrar venta de feria</button>
+          </div>`;
+      }
+      grid.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function goVentaFeria(fecha) {
+      switchTab("pos");
+      document.getElementById("pos-punto").value = "feria";
+      document.getElementById("pos-fecha").value = fecha || todayLocal();
+      handlePuntoChange();
+    }
+
+    function openCierreFeria(fecha) {
+      if (!fecha) {
+        const abiertas = getFeriaFechas().filter(f => !isFeriaCerrada(f));
+        fecha = abiertas.length ? abiertas[abiertas.length - 1] : todayLocal();
+      }
+      cierreFechaPreset = fecha;
+      openModal("modalCierreFeria");
+    }
+
+    function openModal_CierreFeria_Init() {
+      const fechaEl = document.getElementById("cierre-fecha");
+      fechaEl.value = cierreFechaPreset || todayLocal();
+      cierreFechaPreset = null;
+      prefillCierreMontos();
+      document.getElementById("cierre-obs").value = "";
+      recalcCierreFeria();
+    }
+
+    function prefillCierreMontos() {
+      const r = buildFeriaResumen(document.getElementById("cierre-fecha").value);
+      document.getElementById("cierre-efectivo").value = r.efectivoReg || "";
+      document.getElementById("cierre-transferencias").value = r.transReg || "";
+    }
+
+    function recalcCierreFeria() {
+      const fechaInput = document.getElementById("cierre-fecha");
+      const fechaVal = fechaInput.value;
+      const efectivoIngresado = parseInt(document.getElementById("cierre-efectivo").value) || 0;
+      const transIngresado = parseInt(document.getElementById("cierre-transferencias").value) || 0;
+
+      const r = buildFeriaResumen(fechaVal);
+      const totalVentas = r.total;
+      const comision = r.comision;
+      const gananciaNeta = totalVentas - comision - COSTO_MESA;
+      const diferencia = (efectivoIngresado + transIngresado) - totalVentas;
+      const efectivoAEntregar = efectivoIngresado - comision;
+      const totalDegustUnids = r.degusts.reduce((acc, d) => acc + d.cantidad, 0);
+
+      const resumenContainer = document.getElementById("cierre-resumen-ventas");
+      if (r.ventas.length === 0) {
+        resumenContainer.innerHTML = `<p class="text-slate-400 italic">No hay ventas registradas para esta fecha en Ferias.</p>`;
+      } else {
+        resumenContainer.innerHTML = `
+          <div class="font-bold text-slate-700 mb-1">📋 Productos vendidos (${r.frascos} frascos, ${r.ventas.length} ventas):</div>
+          ${r.lineas.map(l => `<div class="flex justify-between text-slate-600"><span>• ${l.qty}x ${l.isPack ? "📦 " : ""}${l.name}</span><span class="font-bold">${formatGs(l.subtotal)}</span></div>`).join("")}
+          <div class="flex justify-between font-black text-slate-900 border-t border-slate-200 pt-1 mt-1">
+            <span>Total Ventas:</span><span>${formatGs(totalVentas)}</span>
+          </div>
+          ${r.cerrada ? `<p class="text-amber-700 font-bold mt-1">⚠️ Esta feria ya tiene cierre. Si confirmás, se reemplaza.</p>` : ""}
+        `;
+      }
+
+      const degustContainer = document.getElementById("cierre-resumen-degusts");
+      if (totalDegustUnids > 0) {
+        degustContainer.classList.remove("hidden");
+        degustContainer.innerHTML = `
+          <div class="font-bold text-orange-800 mb-1">🍽️ Degustaciones/Cortesías de este día:</div>
+          ${r.degusts.map(d => `<div class="text-orange-700">${d.cantidad}x ${d.productName} (${d.tipo}) — ${d.motivo}</div>`).join("")}
+        `;
+      } else {
+        degustContainer.classList.add("hidden");
+      }
+
+      document.getElementById("cierre-calc-total").innerText = formatGs(totalVentas);
+      document.getElementById("cierre-calc-comision").innerText = formatGs(comision);
+      document.getElementById("cierre-calc-efectivo").innerText = formatGs(efectivoIngresado);
+      document.getElementById("cierre-calc-trans").innerText = formatGs(transIngresado);
+      const diffEl = document.getElementById("cierre-calc-diff");
+      diffEl.innerText = formatGs(Math.abs(diferencia)) + (diferencia === 0 ? " ✅ Cuadra" : (diferencia > 0 ? " ⬆️ Sobrante" : " ⬇️ Faltante"));
+      diffEl.className = `font-bold ${diferencia === 0 ? 'text-emerald-400' : diferencia > 0 ? 'text-blue-400' : 'text-red-400'}`;
+      document.getElementById("cierre-calc-aentregar-label").innerText = efectivoAEntregar >= 0
+        ? "💵 Efectivo a entregar a Don Waldino:" : "💵 Don Waldino le debe a Jazmín:";
+      document.getElementById("cierre-calc-aentregar").innerText = formatGs(Math.abs(efectivoAEntregar));
+      document.getElementById("cierre-calc-degusts").innerText = totalDegustUnids + " uds";
+      document.getElementById("cierre-calc-net").innerText = formatGs(gananciaNeta);
+    }
+
+    function saveCierreFeria() {
+      const fechaVal = document.getElementById("cierre-fecha").value;
+      if (!fechaVal) { alert("Seleccioná la fecha de la feria."); return; }
+
+      const r = buildFeriaResumen(fechaVal);
+      if (r.ventas.length === 0 && !confirm(`No hay ventas de feria el ${fmtFecha(fechaVal)}. ¿Cerrar igual?`)) return;
+
+      const efectivoIngresado = parseInt(document.getElementById("cierre-efectivo").value) || 0;
+      const transIngresado = parseInt(document.getElementById("cierre-transferencias").value) || 0;
+      const obs = document.getElementById("cierre-obs").value.trim();
+      const diferencia = (efectivoIngresado + transIngresado) - r.total;
+      if (diferencia !== 0 && !confirm(`El cobro declarado no cuadra con las ventas (${diferencia > 0 ? "sobran" : "faltan"} ${formatGs(Math.abs(diferencia))}). ¿Cerrar igual?`)) return;
+
+      const cierre = {
+        id: "CIERRE-" + fechaVal.replace(/-/g, ""),
+        fecha: fechaVal,
+        timestamp: new Date().toISOString(),
+        totalVentas: r.total,
+        comision: r.comision,
+        efectivo: efectivoIngresado,
+        transferencias: transIngresado,
+        efectivoAEntregar: efectivoIngresado - r.comision,
+        costoMesa: COSTO_MESA,
+        gananciaNeta: r.total - r.comision - COSTO_MESA,
+        frascos: r.frascos,
+        cantVentas: r.ventas.length,
+        observaciones: obs,
+        encargada: "Jazmín Rodríguez"
+      };
+
+      const existingIdx = cierresFeria.findIndex(c => c.fecha === fechaVal);
+      if (existingIdx !== -1) {
+        if (!confirm(`Ya existe un cierre para el ${fmtFecha(fechaVal)}. ¿Deseas reemplazarlo?`)) return;
+        cierresFeria.splice(existingIdx, 1);
+      }
+
+      cierresFeria.unshift(cierre);
+      cierresFeria.sort((a, b) => b.fecha.localeCompare(a.fecha));
+      saveCierres();
+
+      closeModal("modalCierreFeria");
+      renderAll();
+      showToast(`✅ Feria del ${fmtFecha(fechaVal)} cerrada. Neto Don Waldino: ${formatGs(cierre.gananciaNeta)}`);
+      showResumenFeria(fechaVal);
+    }
+
+    // Lista de cierres con acceso al resumen
+    function renderCierresFeriaList() {
+      const container = document.getElementById("feria-cierres-list");
+      if (!container) return;
+      if (cierresFeria.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 italic">No hay cierres registrados aún.</p>`;
+        return;
+      }
+      container.innerHTML = cierresFeria.map(c => {
+        const r = buildFeriaResumen(c.fecha);
+        return `
+        <div class="p-3 bg-gradient-to-r from-slate-50 to-white border border-slate-200 rounded-xl">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-full">✅ CERRADA</span>
+              <span class="font-black text-slate-800 text-xs">${fmtFecha(c.fecha)} — Feria Plaza Italia</span>
+            </div>
+            <span class="font-black text-slate-900 text-xs">${formatGs(r.total)}</span>
+          </div>
+          <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 text-[11px] text-slate-600">
+            <span>Comisión Jazmín (15%):</span><span class="font-bold text-purple-700">${formatGs(r.comision)}</span>
+            <span>Efectivo rendido:</span><span class="font-bold">${formatGs(r.efectivo)}</span>
+            <span>Transferencias / POS:</span><span class="font-bold">${formatGs(r.trans)}</span>
+            <span>${r.aEntregar >= 0 ? "Efectivo a Don Waldino:" : "DW le debe a Jazmín:"}</span><span class="font-bold text-emerald-700">${formatGs(Math.abs(r.aEntregar))}</span>
+            <span>Ganancia Neta Don Waldino:</span><span class="font-bold text-emerald-700">${formatGs(r.neto)}</span>
+          </div>
+          ${c.observaciones ? `<p class="text-slate-400 text-[10px] mt-1 italic">${c.observaciones}</p>` : ''}
+          <div class="mt-2 flex gap-2">
+            <button onclick="showResumenFeria('${c.fecha}')" class="flex-1 py-1.5 bg-slate-900 text-white font-bold rounded-lg text-[11px]">Ver resumen</button>
+            <button onclick="sendFeriaWhatsAppReport('${c.fecha}')" class="px-3 py-1.5 bg-emerald-600 text-white font-bold rounded-lg text-[11px]">WhatsApp</button>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    // Modal de resumen (mismo formato que la feria del 03/10)
+    function showResumenFeria(fecha) {
+      const r = buildFeriaResumen(fecha);
+      const cuadra = r.diferencia === 0;
+      const body = document.getElementById("resumen-feria-body");
+      body.innerHTML = `
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="bg-blue-100 text-blue-800 text-[10px] font-black px-2 py-0.5 rounded">Feria ${fmtFecha(fecha)}</span>
+            <span class="${r.cerrada ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-900"} text-[10px] font-black px-2 py-0.5 rounded">${r.cerrada ? "CERRADA" : "ABIERTA"}</span>
+          </div>
+          <h3 class="font-black text-slate-900 text-lg mt-1">Comprobantes y Liquidación</h3>
+          <p class="text-xs text-slate-500">Plaza Italia - Encargada: Jazmín Rodríguez</p>
+        </div>
+        <button onclick="closeModal('modalResumenFeria')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="mt-4 p-3 ${cuadra ? "bg-emerald-50 border-emerald-200" : "bg-red-50 border-red-200"} border rounded-xl">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold ${cuadra ? "text-emerald-800" : "text-red-800"}">${cuadra ? "✅" : "⚠️"} Cuadre de Caja y Pagos:</span>
+          <span class="font-black ${cuadra ? "text-emerald-700" : "text-red-700"} text-sm">${formatGs(r.total)} ${cuadra ? "(100% OK)" : `(${r.diferencia > 0 ? "sobrante" : "faltante"} ${formatGs(Math.abs(r.diferencia))})`}</span>
+        </div>
+        <p class="text-[11px] ${cuadra ? "text-emerald-700" : "text-red-700"} mt-1">
+          Efectivo (${formatGs(r.efectivo)}) + ${r.comprobantes.length} Transf./POS (${formatGs(r.trans)}) = <b>${formatGs(r.efectivo + r.trans)}</b>.<br>
+          Comisión Jazmín (15%): <b>${formatGs(r.comision)}</b> | Mesa: <b>${formatGs(r.mesa)}</b> | Neto Don Waldino: <b>${formatGs(r.neto)}</b>.
+        </p>
+      </div>
+
+      <div class="mt-4">
+        <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider mb-2">Productos Vendidos en la Feria (${r.frascos} frascos):</h4>
+        <div class="space-y-1.5 text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          ${r.lineas.length ? r.lineas.map(l => `
+          <div class="flex justify-between items-center gap-2">
+            <span class="flex items-center gap-2">
+              ${l.isPack ? `<span class="flex -space-x-2">${l.items.map(id => productImg(id, "w-7 h-7 rounded border border-white")).join("")}</span>` : productImg(l.id, "w-8 h-8 rounded border border-slate-200")}
+              <span>${l.qty} ${l.isPack ? "📦 " : ""}${l.name}${l.notas.length ? ` <span class="text-slate-400">(${l.notas.join("; ")})</span>` : ""}</span>
+            </span>
+            <span class="font-bold whitespace-nowrap">${formatGs(l.subtotal)}</span>
+          </div>`).join("") : `<p class="text-slate-400 italic">Sin ventas.</p>`}
+          <div class="pt-2 border-t border-slate-200 flex justify-between font-black text-slate-900">
+            <span>Total Mercadería Vendida:</span><span>${formatGs(r.total)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="flex justify-between items-center mb-2">
+          <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider">${r.comprobantes.length} Transferencias / POS:</h4>
+          <span class="font-black text-blue-700 text-xs">Total: ${formatGs(r.transReg)}</span>
+        </div>
+        <div class="space-y-2 text-xs">
+          ${r.comprobantes.map((c, i) => `
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg flex justify-between items-center">
+            <span class="font-medium text-slate-800">${i + 1}. ${c.tipo}</span>
+            <span class="font-bold text-blue-800 font-mono">${formatGs(c.monto)} ➔ ${c.ref}</span>
+          </div>`).join("")}
+          <div class="p-2.5 bg-amber-50 border border-amber-200 rounded-lg flex justify-between items-center">
+            <span class="font-medium text-slate-800">💵 Cobro en Efectivo en Mano:</span>
+            <span class="font-bold text-amber-900 font-mono">${formatGs(r.efectivoReg)}</span>
+          </div>
+          ${r.cierre && (r.cierre.efectivo !== r.efectivoReg || r.cierre.transferencias !== r.transReg) ? `
+          <p class="text-[11px] text-red-700">Declarado en el cierre: efectivo ${formatGs(r.cierre.efectivo)} / transf.-POS ${formatGs(r.cierre.transferencias)}.</p>` : ""}
+        </div>
+      </div>
+
+      ${r.degusts.length ? `
+      <div class="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-xl text-xs">
+        <div class="font-bold text-orange-800 mb-1">🍽️ Degustaciones / Cortesías:</div>
+        ${r.degusts.map(d => `<div class="text-orange-700">${d.cantidad}x ${d.productName} — ${d.motivo}</div>`).join("")}
+      </div>` : ""}
+
+      <div class="mt-4 p-3 bg-slate-100 rounded-xl text-xs space-y-1">
+        <div class="flex justify-between text-slate-600"><span>Efectivo recaudado por Jazmín:</span><span>${formatGs(r.efectivo)}</span></div>
+        <div class="flex justify-between text-purple-700 font-bold"><span>- Comisión Jazmín (15%):</span><span>- ${formatGs(r.comision)}</span></div>
+        <div class="flex justify-between font-black text-slate-900 pt-1 border-t border-slate-200">
+          <span>${r.aEntregar >= 0 ? "Efectivo a entregar a Don Waldino:" : "Don Waldino le debe a Jazmín:"}</span><span>${formatGs(Math.abs(r.aEntregar))}</span>
+        </div>
+      </div>
+      ${r.observaciones ? `<p class="mt-3 text-[11px] text-slate-500 italic">📝 ${r.observaciones}</p>` : ""}`;
+      document.getElementById("resumen-feria-wa").onclick = () => sendFeriaWhatsAppReport(fecha);
+      openModal("modalResumenFeria");
+    }
+
+    function buildFeriaWhatsApp(fecha) {
+      const r = buildFeriaResumen(fecha);
+      const prods = r.lineas.map(l => `• ${l.qty} ${l.isPack ? "📦 " : ""}${l.name}: ${formatGs(l.subtotal)}`).join("\n");
+      const comps = r.comprobantes.map((c, i) => `  ${i + 1}. ${c.tipo}: ${formatGs(c.monto)}`).join("\n");
+      return `🎪 *DON WALDINO - RENDICIÓN DE FERIA (PLAZA ITALIA)* 🎪
+👤 *Encargada:* Jazmín Rodríguez
+📅 *Fecha:* ${fmtFecha(fecha)} ${r.cerrada ? "✅ CERRADA" : "⏳ ABIERTA"}
+
+🫙 *PRODUCTOS VENDIDOS (${r.frascos} frascos):*
+${prods || "Sin ventas"}
+*Total: ${formatGs(r.total)}*
+
+💵 *COBROS:*
+• Efectivo: ${formatGs(r.efectivo)}
+• Transferencias / POS: ${formatGs(r.trans)}${comps ? "\n" + comps : ""}
+• Cuadre: ${r.diferencia === 0 ? "✅ OK" : (r.diferencia > 0 ? "⬆️ Sobrante " : "⬇️ Faltante ") + formatGs(Math.abs(r.diferencia))}
+
+📊 *LIQUIDACIÓN:*
+• Comisión Jazmín (15%): *${formatGs(r.comision)}*
+• ${r.aEntregar >= 0 ? "Efectivo a entregar a Don Waldino" : "Don Waldino le debe a Jazmín"}: *${formatGs(Math.abs(r.aEntregar))}*
+• Costo Mesa: ${formatGs(r.mesa)} _(Asumido x Don Waldino)_
+• 📈 *Ganancia Neta Don Waldino:* *${formatGs(r.neto)}*${r.degusts.length ? `\n\n🍽️ Degustaciones: ${r.degusts.map(d => d.cantidad + "x " + d.productName).join(", ")}` : ""}${r.observaciones ? `\n\n📝 ${r.observaciones}` : ""}
+
+_Cierre de feria - Don Waldino_`;
+    }
+
+  </script>
+</body>
+</html>
