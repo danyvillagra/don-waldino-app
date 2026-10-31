@@ -420,6 +420,10 @@
           </div>
         </div>
 
+        <button onclick="openSalida(document.getElementById('pos-punto').value)" class="mt-3 w-full sm:w-auto bg-orange-50 hover:bg-orange-100 border border-orange-300 text-orange-800 font-bold px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5">
+          <i data-lucide="package-minus" class="w-4 h-4"></i> Registrar salida sin venta (muestra / gentileza / devolución)
+        </button>
+
         <!-- SECCIÓN DE COMBOS / PACKS ESPECIALES (CON DESCUENTO AUTOMÁTICO DE STOCK) -->
         <div class="mt-6">
           <div class="flex items-center justify-between mb-3">
@@ -573,8 +577,8 @@
             <p class="text-xs text-slate-500 mt-0.5">Stock automático generado por ventas con soporte de ajustes manuales auditados.</p>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
-            <button onclick="openModal('modalDegustacion')" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
-              <i data-lucide="gift" class="w-4 h-4"></i> Degustación / Cortesía
+            <button onclick="openSalida('')" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+              <i data-lucide="package-minus" class="w-4 h-4"></i> Salida sin venta
             </button>
             <button onclick="openModal('modalAjusteStock')" class="bg-chili-600 hover:bg-chili-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
               <i data-lucide="edit-3" class="w-4 h-4"></i> Ajuste Manual de Stock
@@ -643,8 +647,8 @@
             <button onclick="openCierreFeria()" class="bg-chili-600 hover:bg-chili-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
               <i data-lucide="flag" class="w-4 h-4"></i> Registrar Cierre de Feria
             </button>
-            <button onclick="openModalDegustFeria()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
-              <i data-lucide="gift" class="w-4 h-4"></i> Degustación / Cortesía
+            <button onclick="openSalida('feria')" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+              <i data-lucide="package-minus" class="w-4 h-4"></i> Salida sin venta (muestra / gentileza / devolución)
             </button>
             <button onclick="showResumenFeria('2026-10-03')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
               <i data-lucide="receipt" class="w-4 h-4"></i> Comprobantes SIP (03/10)
@@ -711,17 +715,17 @@
           </div>
         </div>
 
-        <!-- Degustaciones / Cortesías de Feria -->
+
+        <!-- Salidas sin venta (feria) -->
         <div class="mt-6 pt-4 border-t border-slate-200">
-          <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center justify-between mb-3 gap-2">
             <h3 class="font-extrabold text-slate-900 text-base flex items-center gap-2">
-              <span class="bg-orange-100 text-orange-800 text-[10px] font-black px-2 py-0.5 rounded-full">DEGUST</span>
-              Degustaciones y Cortesías de Ferias
+              <span class="bg-orange-100 text-orange-800 text-[10px] font-black px-2 py-0.5 rounded-full">SALIDAS</span>
+              Salidas sin venta en Ferias
             </h3>
+            <button onclick="openSalida('feria')" class="text-xs font-bold text-orange-700 bg-orange-100 hover:bg-orange-200 px-2.5 py-1 rounded-lg">+ Registrar</button>
           </div>
-          <div id="feria-degust-list" class="space-y-2 text-xs">
-            <p class="text-slate-400 italic">No hay degustaciones registradas en ferias.</p>
-          </div>
+          <div id="feria-degust-list" class="space-y-2 text-xs"></div>
         </div>
 
         <!-- Cierres de Feria Registrados -->
@@ -751,9 +755,14 @@
             <h2 class="text-xl md:text-2xl font-black text-slate-900 mt-1">Ventas en Centro de Producción (CP)</h2>
             <p class="text-xs text-slate-500">Canales: Ventas Directas, Redes Sociales y Página WEB.</p>
           </div>
-          <button onclick="sendCPWhatsAppReport()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow">
-            <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp Reporte Semanal CP
-          </button>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="openSalida('cp')" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+              <i data-lucide="package-minus" class="w-4 h-4"></i> Salida sin venta
+            </button>
+            <button onclick="sendCPWhatsAppReport()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow">
+              <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp Reporte Semanal CP
+            </button>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
@@ -803,6 +812,19 @@
             </table>
           </div>
         </div>
+
+        <!-- Salidas sin venta (cp) -->
+        <div class="mt-6 pt-4 border-t border-slate-200">
+          <div class="flex items-center justify-between mb-3 gap-2">
+            <h3 class="font-extrabold text-slate-900 text-base flex items-center gap-2">
+              <span class="bg-orange-100 text-orange-800 text-[10px] font-black px-2 py-0.5 rounded-full">SALIDAS</span>
+              Salidas sin venta en CP
+            </h3>
+            <button onclick="openSalida('cp')" class="text-xs font-bold text-orange-700 bg-orange-100 hover:bg-orange-200 px-2.5 py-1 rounded-lg">+ Registrar</button>
+          </div>
+          <div id="cp-salidas-list" class="space-y-2 text-xs"></div>
+        </div>
+
       </div>
     </section>
 
@@ -820,7 +842,10 @@
             <h2 class="text-xl md:text-2xl font-black text-slate-900 mt-1">Control de Stock y Rendición Areguá</h2>
             <p class="text-xs text-slate-500">Lotes entregados pendientes de rendición y balance de consignación.</p>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="openSalida('aregua')" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+              <i data-lucide="package-minus" class="w-4 h-4"></i> Salida sin venta
+            </button>
             <button onclick="openModal('modalRendirAregua')" class="bg-chili-600 hover:bg-chili-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
               <i data-lucide="clipboard-check" class="w-4 h-4"></i> Rendir Ventas Areguá
             </button>
@@ -890,6 +915,19 @@
             <p class="text-slate-400 italic">No hay rendiciones registradas aún para estos lotes.</p>
           </div>
         </div>
+
+        <!-- Salidas sin venta (aregua) -->
+        <div class="mt-6 pt-4 border-t border-slate-200">
+          <div class="flex items-center justify-between mb-3 gap-2">
+            <h3 class="font-extrabold text-slate-900 text-base flex items-center gap-2">
+              <span class="bg-orange-100 text-orange-800 text-[10px] font-black px-2 py-0.5 rounded-full">SALIDAS</span>
+              Salidas sin venta en Areguá
+            </h3>
+            <button onclick="openSalida('aregua')" class="text-xs font-bold text-orange-700 bg-orange-100 hover:bg-orange-200 px-2.5 py-1 rounded-lg">+ Registrar</button>
+          </div>
+          <div id="aregua-salidas-list" class="space-y-2 text-xs"></div>
+        </div>
+
       </div>
     </section>
 
@@ -1058,32 +1096,30 @@
     </div>
   </div>
 
-  <!-- Modal Degustación / Cortesía -->
+  <!-- Modal Salida de Mercadería sin venta (muestra / gentileza / devolución / degustación) -->
   <div id="modalDegustacion" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl animate-pop">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl animate-pop max-h-[92vh] overflow-y-auto">
       <div class="flex justify-between items-center pb-3 border-b border-slate-100">
         <h3 class="font-black text-slate-900 text-lg flex items-center gap-2">
-          <span class="bg-orange-100 text-orange-800 text-xs font-black px-2 py-0.5 rounded">DEGUST</span>
-          Registrar Degustación / Cortesía
+          <span class="bg-orange-100 text-orange-800 text-xs font-black px-2 py-0.5 rounded">SALIDA</span>
+          Salida de mercadería sin venta
         </h3>
         <button onclick="closeModal('modalDegustacion')" class="text-slate-400 hover:text-slate-700">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <p class="text-xs text-slate-500 mt-2">Registra productos usados para degustación o dados de cortesía. Se descontarán del stock y quedarán en la bitácora.</p>
+      <p class="text-xs text-slate-500 mt-2">Los productos se descuentan del stock y quedan registrados en la boca de venta y en la bitácora de stock.</p>
 
       <div class="mt-4 space-y-4">
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo</label>
-          <select id="degust-tipo" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold">
-            <option value="Degustación">🍽️ Degustación (prueba en feria / evento)</option>
-            <option value="Cortesía">🎁 Cortesía / Regalo autorizado</option>
-            <option value="Muestra">📦 Muestra comercial</option>
-          </select>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo de salida <span class="text-red-500">*</span></label>
+          <div id="salida-tipos" class="grid grid-cols-2 gap-2"></div>
+          <input type="hidden" id="degust-tipo" value="Muestra">
+          <p id="salida-tipo-ayuda" class="text-[11px] text-slate-500 mt-1"></p>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Punto de Venta / Origen</label>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Boca de venta <span class="text-red-500">*</span></label>
           <select id="degust-punto" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold">
             <option value="feria">🎪 Feria (Plaza Italia)</option>
             <option value="cp">🏭 Centro de Producción (CP)</option>
@@ -1092,31 +1128,41 @@
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Producto <span class="text-red-500">*</span></label>
-          <select id="degust-producto" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold">
-            <!-- JS -->
-          </select>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Productos <span class="text-red-500">*</span></label>
+          <div id="salida-items" class="space-y-2"></div>
+          <button type="button" onclick="addSalidaRow()" class="mt-2 text-xs font-bold text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200 px-3 py-1.5 rounded-lg">+ Agregar otro producto</button>
+          <div class="mt-2 flex justify-between text-xs text-slate-600"><span>Valor a precio de venta:</span><b id="salida-valor">Gs 0</b></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Fecha</label>
+            <input type="date" id="degust-fecha" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Autorizado por</label>
+            <select id="salida-autorizado" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold">
+              <option>Dany</option>
+              <option>Waldi</option>
+              <option>Jazmín</option>
+            </select>
+          </div>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cantidad <span class="text-red-500">*</span></label>
-          <input type="number" id="degust-cantidad" min="1" value="1" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-bold">
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Entregado a (cliente / persona) <span id="salida-dest-req" class="text-red-500">*</span></label>
+          <input type="text" id="salida-destinatario" placeholder="Ej: Restaurante La Cocina, Sra. María, público de la feria" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-medium">
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Fecha</label>
-          <input type="date" id="degust-fecha" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Observación / Motivo <span class="text-red-500">*</span></label>
-          <input type="text" id="degust-motivo" placeholder="Ej: Degustación en feria, muestra para cliente, etc." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-medium">
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Motivo / Observación <span class="text-red-500">*</span></label>
+          <input type="text" id="degust-motivo" placeholder="Ej: Muestra para posible cliente, frasco con tapa dañada" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-medium">
         </div>
       </div>
 
       <div class="mt-6 flex gap-3">
         <button onclick="closeModal('modalDegustacion')" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl text-sm">Cancelar</button>
-        <button onclick="saveDegustacion()" class="flex-1 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-sm shadow">Registrar Degustación</button>
+        <button onclick="saveDegustacion()" class="flex-1 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-sm shadow">Registrar salida</button>
       </div>
     </div>
   </div>
@@ -1194,7 +1240,7 @@
           </div>
           <p class="text-slate-400 text-[10px] -mt-1">Regla: la comisión nunca se descuenta del efectivo. El efectivo se entrega completo.</p>
           <div class="flex justify-between">
-            <span class="text-slate-300">🍽️ Degustaciones (unidades):</span>
+            <span class="text-slate-300">📦 Salidas sin venta (unidades):</span>
             <span id="cierre-calc-degusts" class="font-bold text-orange-300">0 uds</span>
           </div>
           <!-- Costo mesa: INFORMATIVO -->
@@ -2457,7 +2503,7 @@ _Generado desde la App Oficial Don Waldino_`;
 -------------------------
 💰 *TOTAL VENTAS CP:* *${formatGs(total)}*
 💜 *Comisión Jazmín (10%):* *${formatGs(comm)}*
-💵 *Saldo Don Waldino:* *${formatGs(total - comm)}*
+💵 *Saldo Don Waldino:* *${formatGs(total - comm)}*${salidasWhatsApp("cp")}
 
 _Reporte semanal de Centro de Producción_`;
 
@@ -2483,7 +2529,7 @@ _Reporte semanal de Centro de Producción_`;
 
 💰 *ESTADO DE CUENTA:*
 • Total Rendido Recibido: ${formatGs(totalRendido)}
-• *Saldo Pendiente por Rendir:* *${formatGs(saldoPendiente)}*
+• *Saldo Pendiente por Rendir:* *${formatGs(saldoPendiente)}*${salidasWhatsApp("aregua")}
 
 _Control de Lotes y Consignación Areguá_`;
 
@@ -2656,124 +2702,236 @@ _Stock automático - Don Waldino_`;
       localStorage.setItem(STORAGE_KEY_CIERRES, JSON.stringify(cierresFeria));
     }
 
-    // Poblar el select de productos en el modal de degustación
-    function populateDegustSelect() {
-      const select = document.getElementById("degust-producto");
-      if (!select) return;
-      select.innerHTML = "";
-      products.forEach(p => {
-        const opt = document.createElement("option");
-        opt.value = p.id;
-        opt.innerText = `#${p.id} - ${p.name} (Stock: ${p.stock})`;
-        select.appendChild(opt);
-      });
+    /* ========================================================
+       SALIDAS DE MERCADERÍA SIN VENTA
+       (se guardan en "degustaciones" para mantener los datos anteriores)
+       ======================================================== */
+    const TIPOS_SALIDA = {
+      "Muestra":     { icon: "📦", badge: "bg-blue-100 text-blue-800",     ayuda: "Producto entregado a un posible cliente para que lo pruebe.", destReq: true },
+      "Gentileza":   { icon: "🎁", badge: "bg-pink-100 text-pink-800",     ayuda: "Regalo o atención autorizada (sin cobro).", destReq: false },
+      "Devolución":  { icon: "↩️", badge: "bg-red-100 text-red-800",       ayuda: "Reposición o cambio a un cliente (producto dañado, mal estado, etc.).", destReq: true },
+      "Degustación": { icon: "🍽️", badge: "bg-orange-100 text-orange-800", ayuda: "Frasco abierto para dar a probar al público.", destReq: false },
+      "Cortesía":    { icon: "🎁", badge: "bg-pink-100 text-pink-800",     ayuda: "", destReq: false, legacy: true }
+    };
+    const PUNTO_LABEL = { feria: "🎪 Feria", cp: "🏭 CP", aregua: "🏺 Areguá" };
+
+    function esc(t) {
+      return String(t == null ? "" : t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
     }
 
-    // Helper: abrir modal degustación preseleccionando Feria
-    function openModalDegustFeria() {
+    function salidasActivas() {
+      return degustaciones.filter(d => !d.anulada);
+    }
+
+    // Abre el formulario con la boca de venta preseleccionada
+    function openSalida(punto) {
       const el = document.getElementById("degust-punto");
-      if (el) el.value = "feria";
+      if (el && punto) el.value = punto;
       openModal("modalDegustacion");
     }
+    function openModalDegustFeria() { openSalida("feria"); }
 
-    // Guardar Degustación
+    // Se llama al abrir el modal: reinicia el formulario
+    function populateDegustSelect() {
+      const cont = document.getElementById("salida-tipos");
+      cont.innerHTML = Object.entries(TIPOS_SALIDA).filter(([, t]) => !t.legacy).map(([k, t]) =>
+        `<button type="button" data-tipo="${k}" onclick="setSalidaTipo('${k}')" class="salida-tipo-btn border-2 rounded-xl p-2 text-xs font-bold text-left">${t.icon} ${k}</button>`).join("");
+      document.getElementById("salida-items").innerHTML = "";
+      addSalidaRow();
+      document.getElementById("salida-destinatario").value = "";
+      document.getElementById("degust-motivo").value = "";
+      document.getElementById("salida-autorizado").value = "Dany";
+      setSalidaTipo("Muestra");
+    }
+
+    function setSalidaTipo(tipo) {
+      document.getElementById("degust-tipo").value = tipo;
+      document.querySelectorAll(".salida-tipo-btn").forEach(b => {
+        const on = b.dataset.tipo === tipo;
+        b.className = `salida-tipo-btn border-2 rounded-xl p-2 text-xs font-bold text-left ${on ? "border-orange-500 bg-orange-50 text-orange-900" : "border-slate-200 bg-white text-slate-600"}`;
+      });
+      document.getElementById("salida-tipo-ayuda").innerText = TIPOS_SALIDA[tipo].ayuda;
+      document.getElementById("salida-dest-req").classList.toggle("hidden", !TIPOS_SALIDA[tipo].destReq);
+    }
+
+    function addSalidaRow() {
+      const cont = document.getElementById("salida-items");
+      const row = document.createElement("div");
+      row.className = "salida-row flex gap-2 items-center";
+      row.innerHTML = `
+        <select class="salida-prod flex-1 min-w-0 bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-semibold" onchange="recalcSalida()">
+          ${products.map(p => `<option value="${p.id}">#${p.id} ${esc(p.name)} (stock ${p.stock})</option>`).join("")}
+        </select>
+        <input type="number" min="1" value="1" class="salida-qty w-16 bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm font-bold text-center" oninput="recalcSalida()">
+        <button type="button" onclick="this.parentElement.remove(); recalcSalida()" class="text-slate-400 hover:text-red-600 px-1 text-lg leading-none" title="Quitar">×</button>`;
+      cont.appendChild(row);
+      recalcSalida();
+    }
+
+    function getSalidaLineas() {
+      return [...document.querySelectorAll("#salida-items .salida-row")].map(r => ({
+        productId: r.querySelector(".salida-prod").value,
+        cantidad: parseInt(r.querySelector(".salida-qty").value)
+      }));
+    }
+
+    function recalcSalida() {
+      const total = getSalidaLineas().reduce((a, l) => {
+        const p = products.find(x => x.id === l.productId);
+        return a + (p && l.cantidad > 0 ? p.price * l.cantidad : 0);
+      }, 0);
+      document.getElementById("salida-valor").innerText = formatGs(total);
+    }
+
+    // Guardar salida (una fila por producto, agrupadas por "grupo")
     function saveDegustacion() {
       const tipo = document.getElementById("degust-tipo").value;
       const punto = document.getElementById("degust-punto").value;
-      const prodId = document.getElementById("degust-producto").value;
-      const cantidad = parseInt(document.getElementById("degust-cantidad").value);
       const fechaVal = document.getElementById("degust-fecha").value || todayLocal();
       const motivo = document.getElementById("degust-motivo").value.trim();
+      const destinatario = document.getElementById("salida-destinatario").value.trim();
+      const autorizadoPor = document.getElementById("salida-autorizado").value;
+      const lineas = getSalidaLineas();
 
-      if (isNaN(cantidad) || cantidad <= 0) {
-        alert("Ingresá una cantidad válida mayor a 0.");
-        return;
+      if (!lineas.length) { alert("Agregá al menos un producto."); return; }
+      if (lineas.some(l => isNaN(l.cantidad) || l.cantidad <= 0)) { alert("Todas las cantidades deben ser mayores a 0."); return; }
+      if (TIPOS_SALIDA[tipo].destReq && !destinatario) { alert(`Para una ${tipo.toLowerCase()} indicá a quién se entregó.`); return; }
+      if (!motivo) { alert("El motivo / observación es obligatorio."); return; }
+
+      // Verificar stock (sumando líneas repetidas del mismo producto)
+      const req = {};
+      lineas.forEach(l => req[l.productId] = (req[l.productId] || 0) + l.cantidad);
+      for (const [id, q] of Object.entries(req)) {
+        const p = products.find(x => x.id === id);
+        if (!p || p.stock < q) { alert(`Stock insuficiente de "${p ? p.name : id}". Disponible: ${p ? p.stock : 0}, requerido: ${q}.`); return; }
       }
-      if (!motivo) {
-        alert("El campo Observación / Motivo es obligatorio.");
-        return;
-      }
 
-      const prod = products.find(p => p.id === prodId);
-      if (!prod) return;
-
-      if (prod.stock < cantidad) {
-        alert(`Stock insuficiente de "${prod.name}". Disponible: ${prod.stock}, requerido: ${cantidad}.`);
-        return;
-      }
-
-      // Descontar del stock
-      const prevStock = prod.stock;
-      prod.stock -= cantidad;
-
-      // Registrar en degustaciones
-      const record = {
-        id: "DEGUST-" + Date.now().toString().slice(-6),
-        fecha: fechaVal,
-        timestamp: new Date().toISOString(),
-        tipo: tipo,
-        punto: punto,
-        productId: prodId,
-        productName: prod.name,
-        cantidad: cantidad,
-        prevStock: prevStock,
-        newStock: prod.stock,
-        motivo: motivo,
-        encargada: "Jazmín Rodríguez"
-      };
-
-      degustaciones.unshift(record);
-
-      // Registrar también en bitácora de ajustes
-      const adjRecord = {
-        id: "ADJ-" + record.id,
-        fecha: new Date().toLocaleDateString("es-PY"),
-        productId: prodId,
-        productName: prod.name,
-        prevStock: prevStock,
-        newStock: prod.stock,
-        motivo: `[${tipo}] ${motivo}`,
-        detalle: `-${cantidad} (${tipo})`,
-        user: "Jazmín Rodríguez",
-        tipo: "degustacion"
-      };
-      adjustments.unshift(adjRecord);
+      const grupo = "SAL-" + Date.now().toString().slice(-7);
+      const ts = new Date().toISOString();
+      Object.entries(req).forEach(([prodId, cantidad], i) => {
+        const prod = products.find(p => p.id === prodId);
+        const prevStock = prod.stock;
+        prod.stock -= cantidad;
+        const record = {
+          id: `${grupo}-${i + 1}`, grupo, fecha: fechaVal, timestamp: ts, tipo, punto,
+          productId: prodId, productName: prod.name, cantidad, precioUnit: prod.price, valor: prod.price * cantidad,
+          prevStock, newStock: prod.stock, motivo, destinatario, autorizadoPor, encargada: "Jazmín Rodríguez"
+        };
+        degustaciones.unshift(record);
+        adjustments.unshift({
+          id: "ADJ-" + record.id, fecha: new Date().toLocaleDateString("es-PY"),
+          productId: prodId, productName: prod.name, prevStock, newStock: prod.stock,
+          motivo: `[${tipo} – ${PUNTO_LABEL[punto]}] ${destinatario ? destinatario + " – " : ""}${motivo}`,
+          detalle: `-${cantidad} (${tipo})`, user: "Jazmín Rodríguez", tipo: "degustacion", salidaTipo: tipo
+        });
+      });
 
       saveProducts();
       saveDegusts();
       saveAdjustments();
-
       closeModal("modalDegustacion");
       renderAll();
-      renderDegustBitacora();
-      showToast(`${tipo} registrada: ${cantidad}x ${prod.name} descontado del stock.`);
+      const unids = Object.values(req).reduce((a, b) => a + b, 0);
+      showToast(`${TIPOS_SALIDA[tipo].icon} ${tipo} registrada: ${unids} unid. descontadas del stock.`);
     }
 
-    // Renderizar la sección de degustaciones en la tab de ferias
-    function renderFeriaDegusts() {
-      const container = document.getElementById("feria-degust-list");
+    // Anular una salida cargada por error: devuelve el stock y deja constancia
+    function anularSalida(grupo) {
+      const recs = degustaciones.filter(d => (d.grupo || d.id) === grupo && !d.anulada);
+      if (!recs.length) return;
+      const motivo = prompt(`¿Por qué se anula esta ${recs[0].tipo.toLowerCase()}? (el stock vuelve a sumarse)`);
+      if (motivo === null) return;
+      if (!motivo.trim()) { alert("Indicá el motivo de la anulación."); return; }
+      recs.forEach(d => {
+        const prod = products.find(p => p.id === d.productId);
+        if (prod) {
+          const prev = prod.stock;
+          prod.stock += d.cantidad;
+          adjustments.unshift({
+            id: "ADJ-ANUL-" + d.id, fecha: new Date().toLocaleDateString("es-PY"),
+            productId: d.productId, productName: d.productName, prevStock: prev, newStock: prod.stock,
+            motivo: `Anulación de ${d.tipo}: ${motivo.trim()}`, detalle: `+${d.cantidad} (anulación)`, user: "Jazmín Rodríguez"
+          });
+        }
+        d.anulada = true;
+        d.anuladaMotivo = motivo.trim();
+        d.anuladaFecha = new Date().toISOString();
+      });
+      saveProducts();
+      saveDegusts();
+      saveAdjustments();
+      renderAll();
+      showToast("Salida anulada. Stock restituido.");
+    }
+
+    // Lista de salidas de una boca de venta, agrupadas por registro
+    function renderSalidasList(punto, containerId) {
+      const container = document.getElementById(containerId);
       if (!container) return;
-      const feriaDegusts = degustaciones.filter(d => d.punto === "feria");
-      if (feriaDegusts.length === 0) {
-        container.innerHTML = `<p class="text-slate-400 italic">No hay degustaciones registradas en ferias.</p>`;
+      const recs = degustaciones.filter(d => d.punto === punto);
+      if (!recs.length) {
+        container.innerHTML = `<p class="text-slate-400 italic">No hay salidas sin venta registradas.</p>`;
         return;
       }
-      container.innerHTML = "";
-      feriaDegusts.forEach(d => {
-        const div = document.createElement("div");
-        div.className = "p-3 bg-orange-50 border border-orange-200 rounded-xl flex items-center justify-between";
-        div.innerHTML = `
-          <div>
-            <div class="flex items-center gap-2 mb-0.5">
-              <span class="bg-orange-200 text-orange-900 text-[10px] font-black px-1.5 py-0.2 rounded">${d.tipo.toUpperCase()}</span>
-              <span class="font-bold text-slate-800 text-xs">${d.fecha} — ${d.productName}</span>
-            </div>
-            <p class="text-slate-500 text-[11px]">${d.motivo}</p>
-          </div>
-          <span class="font-black text-orange-700 text-sm ml-2">-${d.cantidad} ud${d.cantidad !== 1 ? 's' : ''}.</span>
-        `;
-        container.appendChild(div);
+      const grupos = [];
+      const idx = {};
+      recs.forEach(d => {
+        const g = d.grupo || d.id;
+        if (!(g in idx)) { idx[g] = grupos.length; grupos.push({ g, items: [] }); }
+        grupos[idx[g]].items.push(d);
       });
+      // Totales por tipo (solo activas)
+      const tot = {};
+      recs.filter(d => !d.anulada).forEach(d => {
+        const t = tot[d.tipo] || (tot[d.tipo] = { u: 0, v: 0 });
+        t.u += d.cantidad;
+        t.v += d.valor != null ? d.valor : (products.find(p => p.id === d.productId) || { price: 0 }).price * d.cantidad;
+      });
+      const totHtml = Object.entries(tot).map(([k, t]) =>
+        `<span class="${(TIPOS_SALIDA[k] || TIPOS_SALIDA.Muestra).badge} text-[10px] font-bold px-2 py-0.5 rounded-full">${(TIPOS_SALIDA[k] || {}).icon || ""} ${k}: ${t.u} u · ${formatGs(t.v)}</span>`).join(" ");
+
+      container.innerHTML = (totHtml ? `<div class="flex flex-wrap gap-1 mb-2">${totHtml}</div>` : "") + grupos.map(({ g, items }) => {
+        const d = items[0];
+        const t = TIPOS_SALIDA[d.tipo] || TIPOS_SALIDA.Muestra;
+        const valor = items.reduce((a, x) => a + (x.valor != null ? x.valor : 0), 0);
+        const an = d.anulada;
+        return `
+        <div class="p-3 ${an ? "bg-slate-50 border-slate-200 opacity-60" : "bg-orange-50 border-orange-200"} border rounded-xl">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="${t.badge} text-[10px] font-black px-1.5 py-0.5 rounded">${t.icon} ${esc(d.tipo).toUpperCase()}</span>
+                <span class="font-bold text-slate-800">${fmtFecha(d.fecha)}</span>
+                ${an ? `<span class="bg-slate-300 text-slate-700 text-[10px] font-black px-1.5 py-0.5 rounded">ANULADA</span>` : ""}
+              </div>
+              <div class="mt-1 text-slate-700">${items.map(x => `${x.cantidad}x ${esc(x.productName)}`).join(" · ")}</div>
+              ${d.destinatario ? `<div class="text-slate-500 text-[11px]">Entregado a: <b>${esc(d.destinatario)}</b></div>` : ""}
+              <div class="text-slate-500 text-[11px]">${esc(d.motivo)}${d.autorizadoPor ? ` · Autorizó: ${esc(d.autorizadoPor)}` : ""}</div>
+              ${an ? `<div class="text-slate-500 text-[11px]">Anulada: ${esc(d.anuladaMotivo || "")}</div>` : ""}
+            </div>
+            <div class="text-right shrink-0">
+              <div class="font-black ${an ? "text-slate-500 line-through" : "text-orange-700"}">-${items.reduce((a, x) => a + x.cantidad, 0)} u</div>
+              ${valor ? `<div class="text-[10px] text-slate-500">${formatGs(valor)}</div>` : ""}
+              ${an ? "" : `<button onclick="anularSalida('${g}')" class="mt-1 text-[10px] text-slate-400 hover:text-red-600 underline">Anular</button>`}
+            </div>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    // Se mantiene el nombre (se llama desde renderAll): dibuja las 3 bocas
+    function renderFeriaDegusts() {
+      renderSalidasList("feria", "feria-degust-list");
+      renderSalidasList("cp", "cp-salidas-list");
+      renderSalidasList("aregua", "aregua-salidas-list");
+    }
+
+    // Texto para reportes de WhatsApp
+    function salidasWhatsApp(punto, fecha) {
+      const recs = salidasActivas().filter(d => d.punto === punto && (!fecha || d.fecha === fecha));
+      if (!recs.length) return "";
+      return "\n\n📦 *SALIDAS SIN VENTA:*\n" + recs.map(d =>
+        `• ${(TIPOS_SALIDA[d.tipo] || {}).icon || ""} ${d.tipo} ${fmtFecha(d.fecha)}: ${d.cantidad}x ${d.productName}${d.destinatario ? " → " + d.destinatario : ""}`).join("\n");
     }
 
     // Renderizar la bitácora de degustaciones en la tab de Stock
@@ -2793,7 +2951,7 @@ _Stock automático - Don Waldino_`;
         div.innerHTML = `
           <div>
             <div class="flex items-center gap-1.5">
-              ${isDegust ? '<span class="bg-orange-200 text-orange-900 text-[9px] font-black px-1 py-0.2 rounded">DEGUST</span>' : ''}
+              ${isDegust ? `<span class="bg-orange-200 text-orange-900 text-[9px] font-black px-1 py-0.2 rounded">${(adj.salidaTipo || "DEGUST").toUpperCase()}</span>` : ''}
               <span class="font-bold text-slate-800">${adj.fecha} — ${adj.productName}</span>
             </div>
             <p class="text-slate-500 text-[11px]">Motivo: ${adj.motivo} (${adj.detalle})</p>
@@ -2875,7 +3033,7 @@ _Stock automático - Don Waldino_`;
       else { efEstado = "cerrado"; efTexto = "Cerrado: " + ultimo.a; }
       const comPagada = comision <= 0 || !!(traza.comision && traza.comision.pagada);
       const mesa = (cierre && cierre.costoMesa != null) ? cierre.costoMesa : (ventas.length ? COSTO_MESA : 0);
-      const degusts = degustaciones.filter(d => d.punto === "feria" && d.fecha === fecha);
+      const degusts = salidasActivas().filter(d => d.punto === "feria" && d.fecha === fecha);
 
       return {
         fecha, ventas, cierre, cerrada: isFeriaCerrada(fecha), total, comision,
@@ -3135,7 +3293,7 @@ _Stock automático - Don Waldino_`;
       if (totalDegustUnids > 0) {
         degustContainer.classList.remove("hidden");
         degustContainer.innerHTML = `
-          <div class="font-bold text-orange-800 mb-1">🍽️ Degustaciones/Cortesías de este día:</div>
+          <div class="font-bold text-orange-800 mb-1">📦 Salidas sin venta de este día:</div>
           ${r.degusts.map(d => `<div class="text-orange-700">${d.cantidad}x ${d.productName} (${d.tipo}) — ${d.motivo}</div>`).join("")}
         `;
       } else {
@@ -3314,8 +3472,8 @@ _Stock automático - Don Waldino_`;
 
       ${r.degusts.length ? `
       <div class="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-xl text-xs">
-        <div class="font-bold text-orange-800 mb-1">🍽️ Degustaciones / Cortesías:</div>
-        ${r.degusts.map(d => `<div class="text-orange-700">${d.cantidad}x ${d.productName} — ${d.motivo}</div>`).join("")}
+        <div class="font-bold text-orange-800 mb-1">📦 Salidas sin venta (muestras, gentilezas, devoluciones):</div>
+        ${r.degusts.map(d => `<div class="text-orange-700">${d.tipo}: ${d.cantidad}x ${esc(d.productName)}${d.destinatario ? " → " + esc(d.destinatario) : ""} — ${esc(d.motivo)}</div>`).join("")}
       </div>` : ""}
 
       ${r.cerrada ? renderTrazaHtml(r) : `
@@ -3416,7 +3574,7 @@ ${prods || "Sin ventas"}
 • Efectivo a entregar (completo): *${formatGs(r.efectivo)}*
 • Estado del efectivo: ${r.pasos.length ? r.pasos.map(p => p.tipo === "entrega" ? "entregado a " + p.a + " (" + fmtFecha(p.fecha) + ")" : p.tipo === "deposito" ? "depositado en cuenta DW (" + fmtFecha(p.fecha) + (p.ref ? ", comp. " + p.ref : "") + ") ✅" : "otro destino: " + p.a).join(" ➔ ") : "en poder de Jazmín"}
 • Costo Mesa: ${formatGs(r.mesa)} _(Asumido x Don Waldino)_
-• 📈 *Ganancia Neta Don Waldino:* *${formatGs(r.neto)}*${r.degusts.length ? `\n\n🍽️ Degustaciones: ${r.degusts.map(d => d.cantidad + "x " + d.productName).join(", ")}` : ""}${r.observaciones ? `\n\n📝 ${r.observaciones}` : ""}
+• 📈 *Ganancia Neta Don Waldino:* *${formatGs(r.neto)}*${salidasWhatsApp("feria", fecha)}${r.observaciones ? `\n\n📝 ${r.observaciones}` : ""}
 
 _Cierre de feria - Don Waldino_`;
     }
