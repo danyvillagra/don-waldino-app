@@ -303,7 +303,7 @@
               <div class="mt-3 space-y-1.5 text-xs">
                 <div class="flex justify-between">
                   <span class="text-slate-500">Lotes Entregados:</span>
-                  <span class="font-bold text-amber-700">13/09 y 08/10 (Pendientes)</span>
+                  <span id="dash-aregua-lotes" class="font-bold text-amber-700">-</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-slate-500">Stock Total en Areguá:</span>
@@ -314,7 +314,7 @@
                   <span id="dash-aregua-stock-val" class="font-bold text-slate-800">Gs 0</span>
                 </div>
                 <div class="flex justify-between pt-1 border-t border-slate-200">
-                  <span class="text-slate-700 font-bold">Ventas Rendidas:</span>
+                  <span class="text-slate-700 font-bold">Saldo por cobrar:</span>
                   <span id="dash-aregua-sales" class="font-bold text-emerald-700">Gs 0</span>
                 </div>
               </div>
@@ -383,7 +383,6 @@
             <select id="pos-punto" onchange="handlePuntoChange()" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-chili-500 focus:outline-none">
               <option value="feria">🎪 Ferias (Plaza Italia - 15% Comisión)</option>
               <option value="cp">🏭 Centro de Producción (CP - 10% Comisión)</option>
-              <option value="aregua">🏺 Ventas Areguá</option>
             </select>
           </div>
 
@@ -839,15 +838,21 @@
               <span class="bg-purple-100 text-purple-900 text-xs font-black px-2.5 py-0.5 rounded-full">Reporte Quincenal</span>
               <span class="bg-amber-100 text-amber-900 text-xs font-black px-2.5 py-0.5 rounded-full">Consignación</span>
             </div>
-            <h2 class="text-xl md:text-2xl font-black text-slate-900 mt-1">Control de Stock y Rendición Areguá</h2>
-            <p class="text-xs text-slate-500">Lotes entregados pendientes de rendición y balance de consignación.</p>
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mt-1">Puesto Areguá – Consignación</h2>
+            <p class="text-xs text-slate-500">Entregas, stock en el puesto, rendiciones (comisión Gs 5.000 por unidad), pagos e incentivo.</p>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
             <button onclick="openSalida('aregua')" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
               <i data-lucide="package-minus" class="w-4 h-4"></i> Salida sin venta
             </button>
-            <button onclick="openModal('modalRendirAregua')" class="bg-chili-600 hover:bg-chili-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
-              <i data-lucide="clipboard-check" class="w-4 h-4"></i> Rendir Ventas Areguá
+            <button onclick="openArRendicion()" class="bg-chili-600 hover:bg-chili-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+              <i data-lucide="clipboard-check" class="w-4 h-4"></i> Cargar rendición
+            </button>
+            <button onclick="openArPago()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+              <i data-lucide="banknote" class="w-4 h-4"></i> Registrar pago
+            </button>
+            <button onclick="openArLote()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+              <i data-lucide="truck" class="w-4 h-4"></i> Nueva entrega
             </button>
             <button onclick="sendAreguaWhatsAppReport()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
               <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp Areguá
@@ -855,65 +860,53 @@
           </div>
         </div>
 
-        <!-- Lotes entregados -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          <!-- Lote 13/09 -->
-          <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
-            <div class="flex justify-between items-center pb-2 border-b border-slate-200">
-              <span class="font-black text-slate-800 text-sm">📦 Entrega Lote 13/09</span>
-              <span class="text-[10px] bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded">Pendiente de Rendición</span>
-            </div>
-            <ul class="mt-3 space-y-1 text-xs text-slate-700">
-              <li class="flex justify-between"><span>• 12 Salsa Sriracha</span> <span class="font-bold">Gs 240.000</span></li>
-              <li class="flex justify-between"><span>• 5 Mermelada Frutilla/Ají</span> <span class="font-bold">Gs 200.000</span></li>
-              <li class="flex justify-between"><span>• 3 Aceite Oriental</span> <span class="font-bold">Gs 120.000</span></li>
-              <li class="flex justify-between"><span>• 2 Pickles Grandes (800ml)</span> <span class="font-bold">Gs 120.000</span></li>
-              <li class="flex justify-between"><span>• 4 Pickles Chico (360ml)</span> <span class="font-bold">Gs 160.000</span></li>
-              <li class="flex justify-between"><span>• 4 Pasta de Ají (común)</span> <span class="font-bold">Gs 160.000</span></li>
-            </ul>
-            <div class="mt-3 pt-2 border-t border-slate-200 flex justify-between font-black text-xs text-slate-900">
-              <span>Total Lote 13/09: 30 unidades</span>
-              <span>Gs 1.000.000</span>
-            </div>
-          </div>
+        <!-- Cuenta Areguá -->
+        <div id="ar-resumen" class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4"></div>
+        <div id="ar-alertas" class="mt-3 space-y-2"></div>
 
-          <!-- Lote 08/10 -->
-          <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
-            <div class="flex justify-between items-center pb-2 border-b border-slate-200">
-              <span class="font-black text-slate-800 text-sm">📦 Entrega Lote 08/10</span>
-              <span class="text-[10px] bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded">Pendiente de Rendición</span>
-            </div>
-            <ul class="mt-3 space-y-1 text-xs text-slate-700">
-              <li class="flex justify-between"><span>• 6 Pickles</span> <span class="font-bold">Gs 240.000</span></li>
-              <li class="flex justify-between"><span>• 11 Mermeladas Frutilla/Ají</span> <span class="font-bold">Gs 440.000</span></li>
-              <li class="flex justify-between"><span>• 6 Salsa Sriracha</span> <span class="font-bold">Gs 120.000</span></li>
-              <li class="flex justify-between"><span>• 1 Aceite Oriental</span> <span class="font-bold">Gs 40.000</span></li>
-            </ul>
-            <div class="mt-8 pt-2 border-t border-slate-200 flex justify-between font-black text-xs text-slate-900">
-              <span>Total Lote 08/10: 24 unidades</span>
-              <span>Gs 840.000</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Resumen Consignación Areguá -->
-        <div class="mt-6 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <h4 class="font-black text-amber-900 text-base">Total Mercadería en Areguá en Consignación</h4>
-            <p class="text-xs text-amber-800">54 frascos en total entregados en ambos lotes sin rendir.</p>
-          </div>
-          <div class="text-right">
-            <span class="text-xs font-bold text-amber-800">Valor Total en Areguá:</span>
-            <div class="text-2xl font-black text-chili-700">Gs 1.840.000</div>
-          </div>
-        </div>
-
-        <!-- Rendiciones Realizadas -->
+        <!-- Stock en Areguá -->
         <div class="mt-6">
-          <h3 class="font-extrabold text-slate-900 text-base mb-3">Rendiciones Efectuadas por Areguá</h3>
-          <div id="aregua-rendiciones-list" class="space-y-2 text-xs">
-            <p class="text-slate-400 italic">No hay rendiciones registradas aún para estos lotes.</p>
+          <div class="flex items-center justify-between mb-3 gap-2">
+            <h3 class="font-extrabold text-slate-900 text-base">📦 Stock en el puesto Areguá</h3>
+            <button onclick="openArLote()" class="text-xs font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 px-2.5 py-1 rounded-lg">+ Entrega</button>
           </div>
+          <div id="ar-stock" class="text-xs"></div>
+        </div>
+
+        <!-- Rendiciones -->
+        <div class="mt-6 pt-4 border-t border-slate-200">
+          <div class="flex items-center justify-between mb-3 gap-2">
+            <h3 class="font-extrabold text-slate-900 text-base">🧾 Rendiciones de ventas</h3>
+            <button onclick="openArRendicion()" class="text-xs font-bold text-chili-700 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg">+ Rendición</button>
+          </div>
+          <div id="ar-rendiciones" class="space-y-2 text-xs"></div>
+        </div>
+
+        <!-- Pagos -->
+        <div class="mt-6 pt-4 border-t border-slate-200">
+          <div class="flex items-center justify-between mb-3 gap-2">
+            <h3 class="font-extrabold text-slate-900 text-base">🏦 Pagos recibidos</h3>
+            <button onclick="openArPago()" class="text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg">+ Pago</button>
+          </div>
+          <div id="ar-pagos" class="space-y-2 text-xs"></div>
+        </div>
+
+        <!-- Incentivo -->
+        <div class="mt-6 pt-4 border-t border-slate-200">
+          <h3 class="font-extrabold text-slate-900 text-base mb-3">🎯 Incentivo a ventas (cuenta separada)</h3>
+          <div id="ar-incentivo" class="text-xs"></div>
+        </div>
+
+        <!-- Entregas -->
+        <div class="mt-6 pt-4 border-t border-slate-200">
+          <h3 class="font-extrabold text-slate-900 text-base mb-3">🚚 Entregas a Areguá</h3>
+          <div id="ar-lotes" class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs"></div>
+        </div>
+
+        <!-- Registros manuales anteriores (versión vieja) -->
+        <div id="aregua-legacy-wrap" class="mt-6 hidden">
+          <h3 class="font-extrabold text-slate-700 text-sm mb-2">Registros manuales anteriores</h3>
+          <div id="aregua-rendiciones-list" class="space-y-2 text-xs"></div>
         </div>
 
         <!-- Salidas sin venta (aregua) -->
@@ -1056,42 +1049,17 @@
     </div>
   </div>
 
-  <!-- Modal Rendición Areguá -->
-  <div id="modalRendirAregua" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl animate-pop">
+  <!-- Modal Areguá (rendición / pago / entrega) -->
+  <div id="modalAregua" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl animate-pop max-h-[92vh] overflow-y-auto">
       <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-        <h3 class="font-black text-slate-900 text-lg flex items-center gap-2">
-          <i data-lucide="clipboard-check" class="w-5 h-5 text-chili-600"></i>
-          Registrar Rendición de Areguá
-        </h3>
-        <button onclick="closeModal('modalRendirAregua')" class="text-slate-400 hover:text-slate-700">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <h3 id="ar-modal-title" class="font-black text-slate-900 text-lg"></h3>
+        <button onclick="closeModal('modalAregua')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-
-      <div class="mt-4 space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Monto Total Recibido / Rendido (Gs)</label>
-          <input type="number" id="aregua-rendicion-monto" placeholder="Ej: 500000" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-bold">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Medio de Cobro</label>
-          <select id="aregua-rendicion-pago" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-bold">
-            <option value="Efectivo">Efectivo</option>
-            <option value="Transferencia Bancaria">Transferencia Bancaria</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Observaciones / Unidades Vendidas</label>
-          <textarea id="aregua-rendicion-obs" rows="3" placeholder="Detalle de productos rendidos y saldo que queda en local..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-medium"></textarea>
-        </div>
-      </div>
-
+      <div id="ar-modal-body" class="mt-4 space-y-4"></div>
       <div class="mt-6 flex gap-3">
-        <button onclick="closeModal('modalRendirAregua')" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl text-sm">Cancelar</button>
-        <button onclick="saveAreguaRendicion()" class="flex-1 py-2.5 bg-chili-600 hover:bg-chili-700 text-white font-bold rounded-xl text-sm shadow">Registrar Rendición</button>
+        <button onclick="closeModal('modalAregua')" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl text-sm">Cancelar</button>
+        <button id="ar-modal-save" class="flex-1 py-2.5 bg-chili-600 hover:bg-chili-700 text-white font-bold rounded-xl text-sm shadow">Guardar</button>
       </div>
     </div>
   </div>
@@ -1508,6 +1476,7 @@
       // Cargar rendiciones de Areguá
       const storedAregua = localStorage.getItem(STORAGE_KEY_AREGUA);
       areguaRendiciones = storedAregua ? JSON.parse(storedAregua) : [];
+      loadAr();
 
       // Cargar degustaciones y cierres
       loadDegusts();
@@ -1668,9 +1637,6 @@
       const totalMesaCost = (feriaFechas.length > 0 ? feriaFechas.length : (feriaSales > 0 ? 1 : 0)) * 35000;
       const feriaNet = feriaSales - feriaComm - totalMesaCost;
 
-      // Areguá
-      let areguaSalesTotal = 0;
-      areguaRendiciones.forEach(r => areguaSalesTotal += r.monto);
 
       // DOM Dashboard
       document.getElementById("dash-total-sales").innerText = formatGs(globalSales);
@@ -1691,8 +1657,11 @@
       document.getElementById("dash-cp-comm").innerText = formatGs(cpComm);
 
       // Desglose Areguá
-      document.getElementById("dash-aregua-stock-val").innerText = formatGs(1840000 - areguaSalesTotal);
-      document.getElementById("dash-aregua-sales").innerText = formatGs(areguaSalesTotal);
+      const arR = arResumen();
+      document.getElementById("dash-aregua-lotes").innerText = ar.lotes.map(l => fmtFecha(l.fecha).slice(0, 5)).join(", ") || "-";
+      document.getElementById("dash-aregua-stock-qty").innerText = arR.stockU + " unids.";
+      document.getElementById("dash-aregua-stock-val").innerText = formatGs(arR.stockV);
+      document.getElementById("dash-aregua-sales").innerText = arR.saldo >= 0 ? formatGs(arR.saldo) : formatGs(-arR.saldo) + " a favor";
 
       // Resumen Financiero
       document.getElementById("dash-fin-total-sales").innerText = formatGs(globalSales);
@@ -2276,54 +2245,399 @@
     }
 
     /* 9. Render Areguá Tab */
-    function renderAreguaTab() {
-      const container = document.getElementById("aregua-rendiciones-list");
-      container.innerHTML = "";
+    /* ========================================================
+       AREGUÁ – CONSIGNACIÓN (entregas, rendiciones, pagos, incentivo)
+       ======================================================== */
+    const STORAGE_AR = "dw_aregua_v2";
+    const AR_COMISION_UNIT = 5000;
+    const AR_SEED = {
+      incentivo: { compromiso: 400000, descripcion: "Incentivo inicial a ventas" },
+      lotes: [
+        { id: "AR-L-1309", fecha: "2026-09-13", entregadoPor: "", aplicadoStock: true, obs: "Lote inicial",
+          items: [{ id: "001", qty: 12 }, { id: "002", qty: 5 }, { id: "004", qty: 3 }, { id: "006", qty: 2 }, { id: "005", qty: 4 }, { id: "003", qty: 4 }] },
+        { id: "AR-L-0810", fecha: "2026-10-08", entregadoPor: "", aplicadoStock: true, obs: "",
+          items: [{ id: "005", qty: 6 }, { id: "002", qty: 11 }, { id: "001", qty: 6 }, { id: "004", qty: 1 }] },
+        { id: "AR-L-0111", fecha: "2026-11-01", entregadoPor: "Waldi", aplicadoStock: false, obs: "Puesto Areguá noviembre. Primera vez que va Pasta de Ají y Morrones.",
+          items: [{ id: "001", qty: 15 }, { id: "004", qty: 4 }, { id: "002", qty: 5 }, { id: "007", qty: 5 }, { id: "005", qty: 2 }, { id: "006", qty: 2 }] }
+      ],
+      rendiciones: [
+        { id: "AR-R-2909", desde: "", hasta: "2026-09-29", obs: "Rendición al 29/09",
+          items: [{ id: "001", qty: 6 }, { id: "004", qty: 1 }, { id: "002", qty: 4 }, { id: "003", qty: 3 }, { id: "005", qty: 1 }] },
+        { id: "AR-R-0710", desde: "", hasta: "2026-10-07", obs: "Rendición al 07/10",
+          items: [{ id: "001", qty: 3 }, { id: "004", qty: 1 }, { id: "002", qty: 2 }, { id: "005", qty: 1 }] },
+        { id: "AR-R-1810", desde: "2026-10-16", hasta: "2026-10-18", obs: "Planilla diaria. Neto aplicado a cuenta del incentivo (setiembre).",
+          items: [{ id: "004", qty: 1 }, { id: "001", qty: 6 }, { id: "003", qty: 2 }] },
+        { id: "AR-R-2210", desde: "2026-10-20", hasta: "2026-10-22", obs: "Planilla diaria. Pagado dentro de la transferencia del 27/10.",
+          items: [{ id: "005", qty: 1 }, { id: "003", qty: 2 }, { id: "002", qty: 1 }, { id: "001", qty: 3 }] },
+        { id: "AR-R-2510", desde: "2026-10-23", hasta: "2026-10-25", sinDetalle: true, neto: 95000, items: [],
+          obs: "Sin planilla: neto deducido de la transferencia del 27/10 (Gs 280.000 − Gs 185.000 de la planilla 20–22/10)." },
+        { id: "AR-R-3110", desde: "2026-10-26", hasta: "2026-10-31", sinDetalle: true, neto: 200000, items: [],
+          obs: "Sin planilla: solo se conoce la transferencia del 30/10." }
+      ],
+      pagos: [
+        { id: "AR-P-1", fecha: "", tipo: "transferencia", monto: 405000, obs: "Rendición 29/09" },
+        { id: "AR-P-2", fecha: "", tipo: "transferencia", monto: 195000, obs: "Rendición 07/10 (correspondía Gs 185.000: transfirió Gs 10.000 de más)" },
+        { id: "AR-P-3", fecha: "2026-10-18", tipo: "incentivo", monto: 195000, obs: "Ventas 16–18/10 a cuenta del incentivo (mes setiembre)" },
+        { id: "AR-P-4", fecha: "2026-10-27", tipo: "transferencia", monto: 280000, obs: "Ventas 20–25/10" },
+        { id: "AR-P-5", fecha: "2026-10-30", tipo: "transferencia", monto: 200000, obs: "Ventas 26–31/10" }
+      ]
+    };
+    let ar = JSON.parse(JSON.stringify(AR_SEED));
 
-      if (areguaRendiciones.length === 0) {
-        container.innerHTML = `<p class="text-slate-400 italic">No hay rendiciones registradas aún para los lotes 13/09 y 08/10.</p>`;
-      } else {
-        areguaRendiciones.forEach(r => {
-          const div = document.createElement("div");
-          div.className = "p-3 bg-slate-50 border border-slate-200 rounded-xl flex justify-between items-center";
-          div.innerHTML = `
-            <div>
-              <span class="font-bold text-slate-900">${r.fecha} - Rendición Recibida</span>
-              <p class="text-slate-500">${r.observaciones || 'Sin observaciones'} (${r.metodoPago})</p>
-            </div>
-            <span class="font-black text-emerald-700 text-sm">${formatGs(r.monto)}</span>
-          `;
-          container.appendChild(div);
+    function saveAr() {
+      try { localStorage.setItem(STORAGE_AR, JSON.stringify(ar)); } catch (e) {}
+    }
+    function loadAr() {
+      let stored = null;
+      try { stored = localStorage.getItem(STORAGE_AR); } catch (e) {}
+      ar = stored ? JSON.parse(stored) : JSON.parse(JSON.stringify(AR_SEED));
+      aplicarLotesAlStock();
+      saveAr();
+    }
+
+    // Una entrega a Areguá sale del stock central (una sola vez por entrega)
+    function aplicarLotesAlStock() {
+      let cambio = false;
+      ar.lotes.forEach(l => {
+        if (l.aplicadoStock) return;
+        l.items.forEach(it => {
+          const p = products.find(x => x.id === it.id);
+          if (!p) return;
+          const prev = p.stock;
+          p.stock = prev - it.qty;
+          adjustments.unshift({
+            id: "ADJ-" + l.id + "-" + it.id, fecha: new Date().toLocaleDateString("es-PY"),
+            productId: p.id, productName: p.name, prevStock: prev, newStock: p.stock,
+            motivo: `Entrega a Areguá ${fmtFecha(l.fecha)}${l.entregadoPor ? " (" + l.entregadoPor + ")" : ""}`,
+            detalle: `-${it.qty} (consignación Areguá)`, user: "Sistema"
+          });
         });
-      }
+        l.aplicadoStock = true;
+        cambio = true;
+      });
+      if (cambio) { saveProducts(); saveAdjustments(); }
     }
 
-    function saveAreguaRendicion() {
-      const monto = parseInt(document.getElementById("aregua-rendicion-monto").value);
-      const metodoPago = document.getElementById("aregua-rendicion-pago").value;
-      const obs = document.getElementById("aregua-rendicion-obs").value.trim();
+    const prodById = id => products.find(p => p.id === id) || INITIAL_PRODUCTS.find(p => p.id === id) || { id, name: id, price: 0 };
+    function itemsU(items) { return (items || []).reduce((a, it) => a + it.qty, 0); }
+    function itemsV(items) { return (items || []).reduce((a, it) => a + it.qty * prodById(it.id).price, 0); }
 
-      if (isNaN(monto) || monto <= 0) {
-        alert("Por favor ingrese un monto válido mayor a 0.");
-        return;
-      }
+    function arCalc(r) {
+      if (r.sinDetalle) return { unidades: null, ventas: null, comision: null, neto: r.neto || 0 };
+      const unidades = itemsU(r.items), ventas = itemsV(r.items), comision = unidades * AR_COMISION_UNIT;
+      return { unidades, ventas, comision, neto: ventas - comision };
+    }
 
-      const record = {
-        id: "REND-ARG-" + Date.now().toString().slice(-6),
-        fecha: new Date().toLocaleDateString("es-PY"),
-        monto: monto,
-        metodoPago: metodoPago,
-        observaciones: obs,
-        encargada: "Jazmín Rodríguez"
+    function arStockPorProducto() {
+      const st = {};
+      const row = id => st[id] || (st[id] = { entregado: 0, vendido: 0, salidas: 0 });
+      ar.lotes.forEach(l => l.items.forEach(it => row(it.id).entregado += it.qty));
+      ar.rendiciones.filter(r => !r.sinDetalle).forEach(r => r.items.forEach(it => row(it.id).vendido += it.qty));
+      salidasActivas().filter(d => d.punto === "aregua" && d.consignacion).forEach(d => row(d.productId).salidas += d.cantidad);
+      Object.values(st).forEach(x => x.stock = x.entregado - x.vendido - x.salidas);
+      return st;
+    }
+
+    function arResumen() {
+      const st = arStockPorProducto();
+      const entregadoU = ar.lotes.reduce((a, l) => a + itemsU(l.items), 0);
+      const entregadoV = ar.lotes.reduce((a, l) => a + itemsV(l.items), 0);
+      let vendU = 0, vendV = 0, comision = 0, neto = 0, netoSinDetalle = 0;
+      ar.rendiciones.forEach(r => {
+        const c = arCalc(r);
+        neto += c.neto;
+        if (r.sinDetalle) netoSinDetalle += c.neto; else { vendU += c.unidades; vendV += c.ventas; comision += c.comision; }
+      });
+      const transferido = ar.pagos.filter(p => p.tipo === "transferencia").reduce((a, p) => a + p.monto, 0);
+      const incentivoAplicado = ar.pagos.filter(p => p.tipo === "incentivo").reduce((a, p) => a + p.monto, 0);
+      const stockU = Object.entries(st).reduce((a, [, x]) => a + Math.max(0, x.stock), 0);
+      const stockV = Object.entries(st).reduce((a, [id, x]) => a + Math.max(0, x.stock) * prodById(id).price, 0);
+      return {
+        st, entregadoU, entregadoV, vendU, vendV, comision, neto, netoSinDetalle, transferido, incentivoAplicado,
+        saldo: neto - transferido - incentivoAplicado, stockU, stockV,
+        incCompromiso: ar.incentivo.compromiso, incSaldo: ar.incentivo.compromiso - incentivoAplicado
       };
-
-      areguaRendiciones.unshift(record);
-      saveAregua();
-
-      closeModal("modalRendirAregua");
-      renderAll();
-      showToast("Rendición de Areguá registrada exitosamente.");
     }
+
+    function arTile(label, value, sub, color) {
+      return `<div class="p-3 rounded-xl border ${color}"><div class="text-[10px] font-bold uppercase opacity-80">${label}</div><div class="text-lg font-black mt-0.5">${value}</div>${sub ? `<div class="text-[10px] opacity-80">${sub}</div>` : ""}</div>`;
+    }
+
+    function renderAreguaTab() {
+      const R = arResumen();
+      document.getElementById("ar-resumen").innerHTML =
+        arTile("Entregado", R.entregadoU + " u", formatGs(R.entregadoV), "bg-slate-50 border-slate-200 text-slate-900") +
+        arTile("Vendido (con planilla)", R.vendU + " u", formatGs(R.vendV) + " · comisión " + formatGs(R.comision), "bg-emerald-50 border-emerald-200 text-emerald-900") +
+        arTile("Neto a rendir", formatGs(R.neto), "Transferido " + formatGs(R.transferido) + " · a incentivo " + formatGs(R.incentivoAplicado), "bg-blue-50 border-blue-200 text-blue-900") +
+        arTile(R.saldo >= 0 ? "Saldo por cobrar" : "Saldo a favor de Areguá", formatGs(Math.abs(R.saldo)), "Incentivo pendiente: " + formatGs(R.incSaldo), R.saldo > 0 ? "bg-amber-50 border-amber-300 text-amber-900" : "bg-purple-50 border-purple-200 text-purple-900");
+
+      // Alertas
+      const al = [];
+      Object.entries(R.st).filter(([, x]) => x.stock < 0).forEach(([id, x]) =>
+        al.push(`⚠️ <b>${esc(prodById(id).name)}</b>: se rindieron ${x.vendido} pero solo figuran ${x.entregado} entregados (diferencia ${x.stock}). Revisar si hubo una entrega sin registrar.`));
+      if (R.netoSinDetalle > 0) al.push(`ℹ️ Hay ventas sin planilla por <b>${formatGs(R.netoSinDetalle)}</b> netos (${ar.rendiciones.filter(r => r.sinDetalle).map(r => periodoTxt(r)).join(", ")}). El stock mostrado es el máximo posible: cargá el detalle para que sea exacto.`);
+      document.getElementById("ar-alertas").innerHTML = al.map(t => `<div class="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900">${t}</div>`).join("");
+
+      // Stock por producto
+      const ids = Object.keys(R.st).sort();
+      document.getElementById("ar-stock").innerHTML = `
+        <div class="overflow-x-auto"><table class="w-full text-left text-[11px]">
+          <thead class="bg-slate-100 uppercase text-slate-600 font-bold text-[10px]"><tr>
+            <th class="p-1.5">Producto</th><th class="p-1.5 text-center" title="Entregado">Ent.</th><th class="p-1.5 text-center" title="Vendido">Vend.</th><th class="p-1.5 text-center" title="Salidas sin venta">Sal.</th><th class="p-1.5 text-center">Stock</th></tr></thead>
+          <tbody class="divide-y divide-slate-100">
+          ${ids.map(id => { const x = R.st[id]; return `<tr>
+            <td class="p-1.5"><div class="flex items-center gap-1.5">${productImg(id, "w-7 h-7 rounded border border-slate-200 shrink-0")}<span class="font-semibold leading-tight">${esc(prodById(id).name)}</span></div></td>
+            <td class="p-1.5 text-center">${x.entregado}</td><td class="p-1.5 text-center">${x.vendido}</td><td class="p-1.5 text-center">${x.salidas}</td>
+            <td class="p-1.5 text-center"><span class="font-black px-2 py-0.5 rounded-full ${x.stock < 0 ? "bg-red-100 text-red-700" : x.stock === 0 ? "bg-slate-100 text-slate-500" : "bg-amber-100 text-amber-900"}">${x.stock}</span></td></tr>`; }).join("")}
+          </tbody>
+          <tfoot><tr class="font-black bg-slate-50"><td class="p-1.5" colspan="4">Total en el puesto · ${formatGs(R.stockV)}</td><td class="p-1.5 text-center">${R.stockU} u</td></tr></tfoot>
+        </table></div>`;
+
+      // Rendiciones
+      const rends = [...ar.rendiciones].sort((a, b) => (b.hasta || "").localeCompare(a.hasta || ""));
+      document.getElementById("ar-rendiciones").innerHTML = rends.length ? rends.map(r => {
+        const c = arCalc(r);
+        return `<div class="p-3 ${r.sinDetalle ? "bg-amber-50 border-amber-200" : "bg-slate-50 border-slate-200"} border rounded-xl">
+          <div class="flex justify-between items-start gap-2">
+            <div class="min-w-0">
+              <div class="font-bold text-slate-900">${periodoTxt(r)} ${r.sinDetalle ? `<span class="ml-1 bg-amber-200 text-amber-900 text-[10px] font-black px-1.5 py-0.5 rounded">SIN PLANILLA</span>` : ""}</div>
+              ${r.sinDetalle ? "" : `<div class="text-slate-600 mt-0.5">${r.items.map(it => `${it.qty} ${esc(prodById(it.id).name)}`).join(" · ")}</div>
+              <div class="text-slate-500 text-[11px]">${c.unidades} u · Ventas ${formatGs(c.ventas)} · Comisión ${formatGs(c.comision)}</div>`}
+              ${r.obs ? `<div class="text-slate-500 text-[11px] italic">${esc(r.obs)}</div>` : ""}
+            </div>
+            <div class="text-right shrink-0">
+              <div class="font-black text-emerald-700">${formatGs(c.neto)}</div>
+              <div class="text-[10px] text-slate-400">neto</div>
+              <button onclick="openArRendicion('${r.id}')" class="mt-1 text-[10px] text-blue-600 underline">${r.sinDetalle ? "Cargar detalle" : "Editar"}</button>
+              <button onclick="arEliminar('rendiciones','${r.id}')" class="mt-1 ml-1 text-[10px] text-slate-400 hover:text-red-600 underline">Eliminar</button>
+            </div>
+          </div></div>`;
+      }).join("") : `<p class="text-slate-400 italic">Sin rendiciones.</p>`;
+
+      // Pagos
+      const pagos = [...ar.pagos].sort((a, b) => (b.fecha || "").localeCompare(a.fecha || ""));
+      document.getElementById("ar-pagos").innerHTML = pagos.length ? pagos.map(p => `
+        <div class="p-3 ${p.tipo === "incentivo" ? "bg-purple-50 border-purple-200" : "bg-blue-50 border-blue-200"} border rounded-xl flex justify-between items-start gap-2">
+          <div class="min-w-0">
+            <div class="font-bold text-slate-900">${p.tipo === "incentivo" ? "🎯 A cuenta del incentivo" : "🏦 Transferencia"} ${p.fecha ? "· " + fmtFecha(p.fecha) : ""}</div>
+            ${p.obs ? `<div class="text-slate-500 text-[11px]">${esc(p.obs)}</div>` : ""}
+          </div>
+          <div class="text-right shrink-0">
+            <div class="font-black ${p.tipo === "incentivo" ? "text-purple-700" : "text-blue-800"}">${formatGs(p.monto)}</div>
+            <button onclick="openArPago('${p.id}')" class="text-[10px] text-blue-600 underline">Editar</button>
+            <button onclick="arEliminar('pagos','${p.id}')" class="ml-1 text-[10px] text-slate-400 hover:text-red-600 underline">Eliminar</button>
+          </div>
+        </div>`).join("") : `<p class="text-slate-400 italic">Sin pagos registrados.</p>`;
+
+      // Incentivo
+      const incPagos = ar.pagos.filter(p => p.tipo === "incentivo");
+      const pct = Math.min(100, Math.round(R.incentivoAplicado / (R.incCompromiso || 1) * 100));
+      document.getElementById("ar-incentivo").innerHTML = `
+        <div class="p-4 bg-purple-50 border border-purple-200 rounded-xl">
+          <div class="flex justify-between font-bold text-purple-900"><span>${esc(ar.incentivo.descripcion || "Incentivo")}: compromiso</span><span>${formatGs(R.incCompromiso)}</span></div>
+          <div class="mt-2 h-2 bg-purple-100 rounded-full overflow-hidden"><div class="h-full bg-purple-600" style="width:${pct}%"></div></div>
+          <div class="mt-2 space-y-1 text-purple-900">
+            ${incPagos.map(p => `<div class="flex justify-between"><span>• ${p.fecha ? fmtFecha(p.fecha) + " – " : ""}${esc(p.obs || "Pago a cuenta")}</span><span class="font-bold">${formatGs(p.monto)}</span></div>`).join("") || `<div class="italic">Sin pagos todavía.</div>`}
+          </div>
+          <div class="mt-2 pt-2 border-t border-purple-200 flex justify-between font-black text-purple-900"><span>Saldo pendiente del incentivo</span><span>${formatGs(R.incSaldo)}</span></div>
+          ${R.saldo < 0 ? `<p class="mt-2 text-[11px] text-purple-800">Además, Areguá tiene <b>${formatGs(-R.saldo)}</b> a favor (pagó de más en rendiciones).</p>` : ""}
+          <div class="mt-3 flex gap-2">
+            <button onclick="openArPago(null,'incentivo')" class="flex-1 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg">+ Pago a cuenta del incentivo</button>
+            <button onclick="editarCompromisoIncentivo()" class="px-3 py-1.5 bg-white border border-purple-300 text-purple-800 font-bold rounded-lg">Editar compromiso</button>
+          </div>
+        </div>`;
+
+      // Entregas
+      document.getElementById("ar-lotes").innerHTML = [...ar.lotes].sort((a, b) => b.fecha.localeCompare(a.fecha)).map(l => `
+        <div class="border border-slate-200 rounded-xl p-3 bg-slate-50">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-200">
+            <span class="font-black text-slate-800">📦 Entrega ${fmtFecha(l.fecha)}</span>
+            <span class="font-bold text-slate-600">${itemsU(l.items)} u</span>
+          </div>
+          <ul class="mt-2 space-y-0.5 text-slate-700">${l.items.map(it => `<li class="flex justify-between"><span>• ${it.qty} ${esc(prodById(it.id).name)}</span><span>${formatGs(it.qty * prodById(it.id).price)}</span></li>`).join("")}</ul>
+          <div class="mt-2 pt-2 border-t border-slate-200 flex justify-between font-black text-slate-900"><span>Total</span><span>${formatGs(itemsV(l.items))}</span></div>
+          ${l.entregadoPor ? `<div class="text-[11px] text-slate-500 mt-1">Llevó: ${esc(l.entregadoPor)}</div>` : ""}
+          ${l.obs ? `<div class="text-[11px] text-slate-500 italic">${esc(l.obs)}</div>` : ""}
+          <button onclick="arEliminar('lotes','${l.id}')" class="mt-1 text-[10px] text-slate-400 hover:text-red-600 underline">Eliminar entrega</button>
+        </div>`).join("");
+
+      // Registros viejos (versión anterior de la app), si los hubiera
+      const legacyWrap = document.getElementById("aregua-legacy-wrap");
+      legacyWrap.classList.toggle("hidden", !areguaRendiciones.length);
+      document.getElementById("aregua-rendiciones-list").innerHTML = areguaRendiciones.map(r => `
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex justify-between items-center">
+          <div><span class="font-bold text-slate-900">${esc(r.fecha)} - Rendición (registro anterior)</span>
+          <p class="text-slate-500">${esc(r.observaciones || "Sin observaciones")} (${esc(r.metodoPago)})</p></div>
+          <span class="font-black text-emerald-700 text-sm">${formatGs(r.monto)}</span>
+        </div>`).join("");
+    }
+
+    function periodoTxt(r) {
+      if (r.desde && r.hasta && r.desde !== r.hasta) return `Ventas ${fmtFecha(r.desde).slice(0, 5)} al ${fmtFecha(r.hasta)}`;
+      return `Rendición al ${fmtFecha(r.hasta || r.desde)}`;
+    }
+
+    // ---- Formularios ----
+    function arRowHtml(it) {
+      return `<div class="ar-row flex gap-2 items-center">
+        <select class="ar-prod flex-1 min-w-0 bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-semibold" onchange="arRecalcForm()">
+          ${products.map(p => `<option value="${p.id}" ${it && it.id === p.id ? "selected" : ""}>#${p.id} ${esc(p.name)} (${formatGs(p.price)})</option>`).join("")}
+        </select>
+        <input type="number" min="1" value="${it ? it.qty : 1}" class="ar-qty w-16 bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm font-bold text-center" oninput="arRecalcForm()">
+        <button type="button" onclick="this.parentElement.remove(); arRecalcForm()" class="text-slate-400 hover:text-red-600 px-1 text-lg leading-none">×</button>
+      </div>`;
+    }
+    function arAddRow() {
+      document.getElementById("ar-items").insertAdjacentHTML("beforeend", arRowHtml());
+      arRecalcForm();
+    }
+    function arFormItems() {
+      return [...document.querySelectorAll("#ar-items .ar-row")].map(r => ({ id: r.querySelector(".ar-prod").value, qty: parseInt(r.querySelector(".ar-qty").value) || 0 }))
+        .filter(it => it.qty > 0)
+        .reduce((acc, it) => { const e = acc.find(x => x.id === it.id); if (e) e.qty += it.qty; else acc.push({ ...it }); return acc; }, []);
+    }
+    function arRecalcForm() {
+      const el = document.getElementById("ar-calc");
+      if (!el) return;
+      const items = arFormItems();
+      const u = itemsU(items), v = itemsV(items);
+      const sinDet = document.getElementById("ar-sindetalle");
+      if (el.dataset.modo === "lote") { el.innerHTML = `${u} unidades · ${formatGs(v)}`; return; }
+      if (sinDet && sinDet.checked) { el.innerHTML = "Se registra solo el monto neto."; return; }
+      el.innerHTML = `${u} unidades · Ventas <b>${formatGs(v)}</b> · Comisión ${formatGs(u * AR_COMISION_UNIT)} · Neto a transferir <b>${formatGs(v - u * AR_COMISION_UNIT)}</b>`;
+    }
+    const inp = (id, label, attrs = "") => `<div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">${label}</label><input id="${id}" ${attrs} class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold"></div>`;
+
+    function arOpenModal(title, body, onSave) {
+      document.getElementById("ar-modal-title").innerText = title;
+      document.getElementById("ar-modal-body").innerHTML = body;
+      document.getElementById("ar-modal-save").onclick = onSave;
+      openModal("modalAregua");
+      arRecalcForm();
+    }
+
+    function openArRendicion(id) {
+      const r = id ? ar.rendiciones.find(x => x.id === id) : null;
+      const items = r && !r.sinDetalle ? r.items : [];
+      arOpenModal(r ? "Editar rendición Areguá" : "Nueva rendición Areguá", `
+        <div class="grid grid-cols-2 gap-3">
+          ${inp("ar-desde", "Ventas desde", `type="date" value="${r ? r.desde || "" : ""}"`)}
+          ${inp("ar-hasta", "Hasta *", `type="date" value="${r ? r.hasta || "" : todayLocal()}"`)}
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Productos vendidos (planilla)</label>
+          <div id="ar-items" class="space-y-2">${(items.length ? items : [null]).map(arRowHtml).join("")}</div>
+          <button type="button" onclick="arAddRow()" class="mt-2 text-xs font-bold text-chili-700 bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg">+ Agregar producto</button>
+          <div id="ar-calc" class="mt-2 p-2 bg-slate-50 rounded-lg text-xs text-slate-700"></div>
+        </div>
+        <label class="flex items-center gap-2 text-xs font-semibold text-slate-700"><input type="checkbox" id="ar-sindetalle" ${r && r.sinDetalle ? "checked" : ""} onchange="document.getElementById('ar-neto-wrap').classList.toggle('hidden', !this.checked); arRecalcForm()"> No tengo la planilla: registrar solo el monto neto</label>
+        <div id="ar-neto-wrap" class="${r && r.sinDetalle ? "" : "hidden"}">${inp("ar-neto", "Monto neto (Gs)", `type="number" value="${r && r.sinDetalle ? r.neto : ""}"`)}</div>
+        ${inp("ar-obs", "Observación", `type="text" value="${r ? esc(r.obs || "") : ""}"`)}
+        <p class="text-[11px] text-slate-500">Comisión Areguá: Gs 5.000 por unidad. El pago (transferencia o a cuenta del incentivo) se registra aparte en "Pagos".</p>`,
+      () => {
+        const hasta = document.getElementById("ar-hasta").value;
+        if (!hasta) { alert("Indicá la fecha de la rendición."); return; }
+        const sinDetalle = document.getElementById("ar-sindetalle").checked;
+        const rec = { id: r ? r.id : "AR-R-" + Date.now().toString().slice(-7), desde: document.getElementById("ar-desde").value, hasta, obs: document.getElementById("ar-obs").value.trim() };
+        if (sinDetalle) {
+          const neto = parseInt(document.getElementById("ar-neto").value);
+          if (!(neto > 0)) { alert("Ingresá el monto neto."); return; }
+          Object.assign(rec, { sinDetalle: true, neto, items: [] });
+        } else {
+          const its = arFormItems();
+          if (!its.length) { alert("Agregá al menos un producto."); return; }
+          const nuevoNeto = itemsV(its) - itemsU(its) * AR_COMISION_UNIT;
+          if (r && r.sinDetalle && nuevoNeto !== r.neto && !confirm(`El neto según la planilla (${formatGs(nuevoNeto)}) no coincide con el monto registrado (${formatGs(r.neto)}). ¿Guardar igual?`)) return;
+          Object.assign(rec, { sinDetalle: false, items: its });
+        }
+        if (r) Object.assign(r, rec, sinDetalle ? {} : { neto: undefined }); else ar.rendiciones.push(rec);
+        saveAr(); closeModal("modalAregua"); renderAll();
+        showToast("Rendición de Areguá guardada.");
+      });
+    }
+
+    function openArPago(id, tipoDefault) {
+      const p = id ? ar.pagos.find(x => x.id === id) : null;
+      const tipo = p ? p.tipo : (tipoDefault || "transferencia");
+      arOpenModal(p ? "Editar pago" : "Registrar pago de Areguá", `
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo</label>
+          <select id="ar-pago-tipo" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-bold">
+            <option value="transferencia" ${tipo === "transferencia" ? "selected" : ""}>🏦 Transferencia a la cuenta de Don Waldino</option>
+            <option value="incentivo" ${tipo === "incentivo" ? "selected" : ""}>🎯 Ventas aplicadas a cuenta del incentivo</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          ${inp("ar-pago-fecha", "Fecha", `type="date" value="${p ? p.fecha || "" : todayLocal()}"`)}
+          ${inp("ar-pago-monto", "Monto (Gs) *", `type="number" value="${p ? p.monto : ""}"`)}
+        </div>
+        ${inp("ar-pago-obs", "Qué cubre / referencia", `type="text" placeholder="Ej: Ventas 01–07/11, comprobante 123" value="${p ? esc(p.obs || "") : ""}"`)}`,
+      () => {
+        const monto = parseInt(document.getElementById("ar-pago-monto").value);
+        if (!(monto > 0)) { alert("Ingresá un monto válido."); return; }
+        const rec = { id: p ? p.id : "AR-P-" + Date.now().toString().slice(-7), tipo: document.getElementById("ar-pago-tipo").value, fecha: document.getElementById("ar-pago-fecha").value, monto, obs: document.getElementById("ar-pago-obs").value.trim() };
+        if (p) Object.assign(p, rec); else ar.pagos.push(rec);
+        saveAr(); closeModal("modalAregua"); renderAll();
+        showToast("Pago de Areguá guardado.");
+      });
+    }
+
+    function openArLote() {
+      arOpenModal("Nueva entrega a Areguá", `
+        <div class="grid grid-cols-2 gap-3">
+          ${inp("ar-lote-fecha", "Fecha *", `type="date" value="${todayLocal()}"`)}
+          <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Llevó</label>
+            <select id="ar-lote-por" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold"><option>Waldi</option><option>Dany</option><option>Jazmín</option></select></div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Productos entregados</label>
+          <div id="ar-items" class="space-y-2">${arRowHtml()}</div>
+          <button type="button" onclick="arAddRow()" class="mt-2 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg">+ Agregar producto</button>
+          <div id="ar-calc" data-modo="lote" class="mt-2 p-2 bg-slate-50 rounded-lg text-xs text-slate-700"></div>
+        </div>
+        ${inp("ar-lote-obs", "Observación", `type="text"`)}
+        <p class="text-[11px] text-slate-500">Se descuenta del stock central y pasa al stock del puesto Areguá.</p>`,
+      () => {
+        const fecha = document.getElementById("ar-lote-fecha").value;
+        const items = arFormItems();
+        if (!fecha || !items.length) { alert("Indicá fecha y al menos un producto."); return; }
+        ar.lotes.push({ id: "AR-L-" + Date.now().toString().slice(-7), fecha, entregadoPor: document.getElementById("ar-lote-por").value, items, obs: document.getElementById("ar-lote-obs").value.trim(), aplicadoStock: false });
+        aplicarLotesAlStock();
+        saveAr(); closeModal("modalAregua"); renderAll();
+        showToast(`Entrega a Areguá registrada: ${itemsU(items)} unidades.`);
+      });
+    }
+
+    function editarCompromisoIncentivo() {
+      const v = prompt("Monto comprometido del incentivo (Gs):", ar.incentivo.compromiso);
+      if (v === null) return;
+      const n = parseInt(String(v).replace(/\D/g, ""));
+      if (!(n >= 0)) { alert("Monto inválido."); return; }
+      ar.incentivo.compromiso = n;
+      saveAr(); renderAll();
+    }
+
+    function arEliminar(tipo, id) {
+      const lista = ar[tipo];
+      const rec = lista.find(x => x.id === id);
+      if (!rec) return;
+      const nombre = { rendiciones: "esta rendición", pagos: "este pago", lotes: "esta entrega (el stock vuelve al stock central)" }[tipo];
+      if (!confirm(`¿Eliminar ${nombre}?`)) return;
+      if (tipo === "lotes" && rec.aplicadoStock) {
+        rec.items.forEach(it => {
+          const p = products.find(x => x.id === it.id);
+          if (!p) return;
+          const prev = p.stock; p.stock += it.qty;
+          adjustments.unshift({ id: "ADJ-DEL-" + rec.id + "-" + it.id, fecha: new Date().toLocaleDateString("es-PY"), productId: p.id, productName: p.name, prevStock: prev, newStock: p.stock, motivo: `Entrega a Areguá ${fmtFecha(rec.fecha)} eliminada`, detalle: `+${it.qty}`, user: "Jazmín Rodríguez" });
+        });
+        saveProducts(); saveAdjustments();
+      }
+      ar[tipo] = lista.filter(x => x.id !== id);
+      saveAr(); renderAll();
+    }
+
+    // Compatibilidad: el viejo botón llamaba a esta función
+    function saveAreguaRendicion() { openArRendicion(); }
 
     /* 10. Render Historial */
     function renderHistoryTable() {
@@ -2512,27 +2826,34 @@ _Reporte semanal de Centro de Producción_`;
 
     // 4. Reporte Quincenal Areguá
     function sendAreguaWhatsAppReport() {
-      let totalRendido = 0;
-      areguaRendiciones.forEach(r => totalRendido += r.monto);
-      const saldoPendiente = 1840000 - totalRendido;
+      const R = arResumen();
+      const stockLines = Object.entries(R.st).filter(([, x]) => x.stock !== 0).map(([id, x]) => `• ${prodById(id).name}: ${x.stock}${x.stock < 0 ? " ⚠️" : ""}`).join("\n");
+      const rends = [...ar.rendiciones].sort((a, b) => (a.hasta || "").localeCompare(b.hasta || "")).map(r => `• ${periodoTxt(r)}: ${formatGs(arCalc(r).neto)}${r.sinDetalle ? " (sin planilla)" : ""}`).join("\n");
+      const pagos = [...ar.pagos].sort((a, b) => (a.fecha || "").localeCompare(b.fecha || "")).map(p => `• ${p.fecha ? fmtFecha(p.fecha) + " " : ""}${p.tipo === "incentivo" ? "A cuenta incentivo" : "Transferencia"}: ${formatGs(p.monto)}`).join("\n");
+      const text =
+`🏺 *DON WALDINO - PUESTO AREGUÁ* 🏺
+📅 *Reporte:* ${fmtFecha(todayLocal())}
 
-      const text = 
-`🏺 *DON WALDINO - CONTROL Y RENDICIÓN AREGUÁ* 🏺
-👤 *Encargada:* Jazmín Rodríguez
-📅 *Reporte Quincenal:* ${new Date().toLocaleDateString("es-PY")}
+🚚 *ENTREGAS:* ${ar.lotes.map(l => fmtFecha(l.fecha).slice(0, 5) + " (" + itemsU(l.items) + " u)").join(", ")}
+• Total entregado: ${R.entregadoU} u (${formatGs(R.entregadoV)})
 
-📦 *LOTES ENTREGADOS EN CONSIGNACIÓN:*
-• Lote 13/09: 30 unidades (Gs 1.000.000)
-• Lote 08/10: 24 unidades (Gs 840.000)
-• Total Frascos Entregados: 54 unidades
-• Valor Total Consignado: *Gs 1.840.000*
+🧾 *RENDICIONES (neto):*
+${rends}
+• Vendido con planilla: ${R.vendU} u · ${formatGs(R.vendV)} · comisión ${formatGs(R.comision)}
 
-💰 *ESTADO DE CUENTA:*
-• Total Rendido Recibido: ${formatGs(totalRendido)}
-• *Saldo Pendiente por Rendir:* *${formatGs(saldoPendiente)}*${salidasWhatsApp("aregua")}
+🏦 *PAGOS:*
+${pagos}
 
-_Control de Lotes y Consignación Areguá_`;
+💰 *CUENTA:*
+• Neto a rendir: ${formatGs(R.neto)}
+• Transferido: ${formatGs(R.transferido)}
+• Aplicado a incentivo: ${formatGs(R.incentivoAplicado)}
+• *${R.saldo >= 0 ? "Saldo por cobrar" : "Saldo a favor de Areguá"}: ${formatGs(Math.abs(R.saldo))}*
 
+🎯 *INCENTIVO:* compromiso ${formatGs(R.incCompromiso)} · pagado ${formatGs(R.incentivoAplicado)} · *pendiente ${formatGs(R.incSaldo)}*
+
+📦 *STOCK EN EL PUESTO${R.netoSinDetalle ? " (máx., faltan planillas)" : ""}:*
+${stockLines}${salidasWhatsApp("aregua")}`;
       openWhatsApp(text);
     }
 
@@ -2596,6 +2917,7 @@ _Stock automático - Don Waldino_`;
         degustaciones: degustaciones,
         cierresFeria: cierresFeria,
         trazasEfectivo: trazas,
+        areguaV2: ar,
         exportDate: new Date().toISOString()
       };
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
@@ -2625,6 +2947,7 @@ _Stock automático - Don Waldino_`;
             cierresFeria = data.cierresFeria || [];
             trazas = data.trazasEfectivo || {};
             saveTrazas();
+            if (data.areguaV2) { ar = data.areguaV2; saveAr(); }
             saveDegusts();
             saveCierres();
 
@@ -2801,9 +3124,12 @@ _Stock automático - Don Waldino_`;
       // Verificar stock (sumando líneas repetidas del mismo producto)
       const req = {};
       lineas.forEach(l => req[l.productId] = (req[l.productId] || 0) + l.cantidad);
-      for (const [id, q] of Object.entries(req)) {
-        const p = products.find(x => x.id === id);
-        if (!p || p.stock < q) { alert(`Stock insuficiente de "${p ? p.name : id}". Disponible: ${p ? p.stock : 0}, requerido: ${q}.`); return; }
+      const consignacion = punto === "aregua";
+      if (!consignacion) {
+        for (const [id, q] of Object.entries(req)) {
+          const p = products.find(x => x.id === id);
+          if (!p || p.stock < q) { alert(`Stock insuficiente de "${p ? p.name : id}". Disponible: ${p ? p.stock : 0}, requerido: ${q}.`); return; }
+        }
       }
 
       const grupo = "SAL-" + Date.now().toString().slice(-7);
@@ -2811,14 +3137,14 @@ _Stock automático - Don Waldino_`;
       Object.entries(req).forEach(([prodId, cantidad], i) => {
         const prod = products.find(p => p.id === prodId);
         const prevStock = prod.stock;
-        prod.stock -= cantidad;
-        const record = {
+        if (!consignacion) prod.stock -= cantidad;
+        const record = { consignacion,
           id: `${grupo}-${i + 1}`, grupo, fecha: fechaVal, timestamp: ts, tipo, punto,
           productId: prodId, productName: prod.name, cantidad, precioUnit: prod.price, valor: prod.price * cantidad,
           prevStock, newStock: prod.stock, motivo, destinatario, autorizadoPor, encargada: "Jazmín Rodríguez"
         };
         degustaciones.unshift(record);
-        adjustments.unshift({
+        if (!consignacion) adjustments.unshift({
           id: "ADJ-" + record.id, fecha: new Date().toLocaleDateString("es-PY"),
           productId: prodId, productName: prod.name, prevStock, newStock: prod.stock,
           motivo: `[${tipo} – ${PUNTO_LABEL[punto]}] ${destinatario ? destinatario + " – " : ""}${motivo}`,
@@ -2843,7 +3169,7 @@ _Stock automático - Don Waldino_`;
       if (motivo === null) return;
       if (!motivo.trim()) { alert("Indicá el motivo de la anulación."); return; }
       recs.forEach(d => {
-        const prod = products.find(p => p.id === d.productId);
+        const prod = d.consignacion ? null : products.find(p => p.id === d.productId);
         if (prod) {
           const prev = prod.stock;
           prod.stock += d.cantidad;

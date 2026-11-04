@@ -31,10 +31,13 @@ Aplicación web responsiva (Mobile-First / PWA-ready) diseñada para **Jazmín R
      - Canales: Ventas Directas, Redes Sociales y Página WEB.
      - Comisión para Jazmín: **10%**.
      - Botón de reporte semanal (cada sábado) por WhatsApp.
-   - 🏺 **Ventas Areguá:**
-     - Control de lotes entregados en consignación (13/09 con 30 unids. y 08/10 con 24 unids.).
-     - Registro de rendición y saldo pendiente.
-     - Botón de reporte quincenal por WhatsApp.
+   - 🏺 **Puesto Areguá (consignación):**
+     - Entregas al puesto (13/09, 08/10, 01/11…): salen del stock central y pasan al stock del puesto.
+     - Rendiciones por planilla (productos vendidos) con comisión fija de **Gs 5.000 por unidad**; también se puede cargar solo el neto si falta la planilla y completarla después.
+     - Pagos: transferencias a la cuenta de Don Waldino o ventas aplicadas a cuenta del incentivo.
+     - Cuenta separada del **incentivo a ventas** (compromiso inicial Gs 400.000) con su saldo pendiente.
+     - Stock por producto en el puesto, alertas de diferencias y reporte por WhatsApp.
+     - Las ventas de Areguá no se cargan desde "Vender": se cargan como rendición.
 
 3. **Stock Central Automático y Auditoría Manual:**
    - Cálculo automático del stock restante.
