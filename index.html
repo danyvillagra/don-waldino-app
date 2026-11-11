@@ -1311,6 +1311,291 @@
   <!-- JAVASCRIPT DE LA APLICACIÓN -->
   <script>
     /* ========================================================
+       SINCRONIZACIÓN CON GOOGLE SHEETS (Drive de Don Waldino)
+       - Los datos siguen guardándose en el navegador (copia local).
+       - Cada cambio se sube a la planilla "Don Waldino – Base de datos App Ventas".
+       - Al abrir la app se bajan los datos de la planilla.
+       - Si dos dispositivos guardan a la vez, se combinan (no se pisan).
+       ======================================================== */
+    const DWSync = (function () {
+      // URL del Apps Script publicado (Implementar > Aplicación web). Vacío = app sin sincronizar.
+      const SYNC_URL = "https://script.google.com/macros/s/AKfycbz9GMww4fXGhgcyverIbiE5VqDVeCuWjzJ3BqKmu1-9lnECZHUPZK8vdHlPrJqg3t_6/exec";
+
+      const PREFIX = "dw_";
+      const META_KEY = "dwsync_meta";       // { clave: { version, base } }
+      const CRED_KEY = "dwsync_cred";       // { clave, dispositivo }
+      const ls = window.localStorage;
+      const rawSet = Storage.prototype.setItem;
+      const rawRemove = Storage.prototype.removeItem;
+
+      let meta = {};
+      let dirty = new Set();
+      let pushTimer = null;
+      let pushing = false;
+      let suppress = false;
+      let badgeEl = null;
+
+      try { meta = JSON.parse(ls.getItem(META_KEY)) || {}; } catch (e) { meta = {}; }
+      try { dirty = new Set(JSON.parse(ls.getItem("dwsync_dirty")) || []); } catch (e) { dirty = new Set(); }
+
+      function saveMeta() {
+        rawSet.call(ls, META_KEY, JSON.stringify(meta));
+        rawSet.call(ls, "dwsync_dirty", JSON.stringify([...dirty]));
+      }
+      function cred() { try { return JSON.parse(ls.getItem(CRED_KEY)) || null; } catch (e) { return null; } }
+      function isDataKey(k) { return typeof k === "string" && k.indexOf(PREFIX) === 0; }
+      function parse(txt) { try { return JSON.parse(txt); } catch (e) { return txt; } }
+
+      /* ---------- Combinación de cambios (3 vías) ---------- */
+      function same(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+      function isObj(x) { return x && typeof x === "object" && !Array.isArray(x); }
+      function isIdArray(x) { return Array.isArray(x) && x.length > 0 && x.every(e => isObj(e) && e.id !== undefined && e.id !== null); }
+
+      function merge3(base, local, remote) {
+        if (same(local, remote)) return local;
+        if (base !== undefined && same(local, base)) return remote;
+        if (base !== undefined && same(remote, base)) return local;
+
+        if (typeof local === "number" && typeof remote === "number" && typeof base === "number") {
+          return remote + (local - base);               // ej. stock: se suman los dos movimientos
+        }
+        const arrLike = (Array.isArray(local) || local == null) && (Array.isArray(remote) || remote == null);
+        if (arrLike && (isIdArray(local) || isIdArray(remote))) {
+          const B = new Map((Array.isArray(base) ? base : []).filter(isObj).map(e => [String(e.id), e]));
+          const L = new Map((local || []).map(e => [String(e.id), e]));
+          const R = new Map((remote || []).map(e => [String(e.id), e]));
+          const ids = [...R.keys(), ...[...L.keys()].filter(k => !R.has(k))];
+          const out = [];
+          ids.forEach(id => {
+            const b = B.get(id), l = L.get(id), r = R.get(id);
+            if (b !== undefined && (l === undefined || r === undefined)) return;   // borrado en algún lado
+            if (l === undefined) { out.push(r); return; }
+            if (r === undefined) { out.push(l); return; }
+            out.push(merge3(b, l, r));
+          });
+          return out;
+        }
+        if (isObj(local) && isObj(remote)) {
+          const b = isObj(base) ? base : {};
+          const out = {};
+          new Set([...Object.keys(remote), ...Object.keys(local)]).forEach(k => {
+            const hasB = k in b, hasL = k in local, hasR = k in remote;
+            if (hasB && (!hasL || !hasR)) return;
+            if (!hasL) { out[k] = remote[k]; return; }
+            if (!hasR) { out[k] = local[k]; return; }
+            out[k] = merge3(hasB ? b[k] : undefined, local[k], remote[k]);
+          });
+          return out;
+        }
+        return local;   // mismo dato cambiado en los dos lados: gana este dispositivo
+      }
+
+      /* ---------- Red ---------- */
+      async function call(body, timeoutMs) {
+        const c = cred();
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), timeoutMs || 15000);
+        try {
+          const res = await fetch(SYNC_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(Object.assign({ clave: c && c.clave, device: c && c.dispositivo }, body)),
+            signal: ctrl.signal
+          });
+          const data = await res.json();
+          if (!data.ok && data.error === "clave") {
+            rawRemove.call(ls, CRED_KEY);
+            badge("error", "Clave incorrecta — recargá la página");
+            throw new Error("clave");
+          }
+          return data;
+        } finally { clearTimeout(t); }
+      }
+
+      /* ---------- Indicador ---------- */
+      function badge(state, text) {
+        if (!badgeEl) {
+          badgeEl = document.createElement("div");
+          badgeEl.id = "dwsync-badge";
+          badgeEl.style.cssText = "position:fixed;left:10px;bottom:10px;z-index:9999;padding:6px 10px;border-radius:999px;font:600 12px system-ui,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer";
+          badgeEl.onclick = () => { if (badgeEl.dataset.state === "nuevo") location.reload(); else syncNow(); };
+          document.body.appendChild(badgeEl);
+        }
+        const colors = { ok: ["#dcfce7", "#166534"], saving: ["#fef9c3", "#854d0e"], offline: ["#fee2e2", "#991b1b"], error: ["#fee2e2", "#991b1b"], nuevo: ["#dbeafe", "#1e40af"] };
+        const [bg, fg] = colors[state] || colors.ok;
+        badgeEl.style.background = bg; badgeEl.style.color = fg;
+        badgeEl.dataset.state = state;
+        badgeEl.textContent = text;
+      }
+      function badgeDefault() {
+        if (dirty.size) badge("offline", "☁ " + dirty.size + " cambio(s) sin subir — tocar para reintentar");
+        else badge("ok", "☁ Sincronizado");
+      }
+
+      /* ---------- Subir cambios ---------- */
+      function schedulePush() {
+        clearTimeout(pushTimer);
+        pushTimer = setTimeout(push, 1500);
+      }
+
+      async function push() {
+        if (!SYNC_URL || pushing || !dirty.size || !cred()) return;
+        pushing = true;
+        badge("saving", "☁ Guardando…");
+        const keys = [...dirty];
+        const items = keys.map(k => ({ key: k, value: parse(ls.getItem(k)), baseVersion: (meta[k] && meta[k].version) || 0 }));
+        let needReload = false;
+        try {
+          const res = await call({ action: "push", items: items });
+          keys.forEach((k, i) => {
+            const r = res.results && res.results[k];
+            if (!r) return;
+            const sentTxt = JSON.stringify(items[i].value);
+            if (r.ok) {
+              meta[k] = { version: r.version, base: sentTxt };
+              if (JSON.stringify(parse(ls.getItem(k))) === sentTxt) dirty.delete(k);
+            } else if (r.conflict) {
+              // Otro dispositivo guardó antes: combinamos y volvemos a subir
+              const base = meta[k] && meta[k].base !== undefined ? parse(meta[k].base) : undefined;
+              const merged = merge3(base, parse(ls.getItem(k)), r.value);
+              suppress = true; rawSet.call(ls, k, JSON.stringify(merged)); suppress = false;
+              meta[k] = { version: r.version, base: JSON.stringify(r.value) };
+              needReload = true;
+            }
+          });
+          saveMeta();
+        } catch (e) {
+          pushing = false;
+          if (e.message !== "clave") badgeDefault();
+          return;
+        }
+        pushing = false;
+        if (needReload) {
+          badge("saving", "☁ Combinando con otro dispositivo…");
+          await push();
+          location.reload();
+          return;
+        }
+        if (dirty.size) schedulePush(); else badgeDefault();
+      }
+
+      /* ---------- Bajar datos al abrir ---------- */
+      async function pullAtBoot() {
+        const res = await call({ action: "pull" }, 10000);
+        const remote = res.data || {};
+        const firstTime = Object.keys(meta).length === 0;
+        if (firstTime) {
+          // Respaldo de lo que había en este dispositivo antes de la primera sincronización
+          const snap = {};
+          for (let i = 0; i < ls.length; i++) { const k = ls.key(i); if (isDataKey(k)) snap[k] = ls.getItem(k); }
+          if (Object.keys(snap).length) rawSet.call(ls, "dwsync_respaldo_inicial", JSON.stringify({ fecha: new Date().toISOString(), datos: snap }));
+        }
+        Object.keys(remote).forEach(k => {
+          if (!isDataKey(k)) return;
+          const r = remote[k];
+          const localTxt = ls.getItem(k);
+          const m = meta[k];
+          if (m && m.version === r.version) return;                // sin novedades
+          const localChanged = localTxt !== null && (dirty.has(k) || !m);
+          if (!localChanged) {
+            rawSet.call(ls, k, JSON.stringify(r.value));
+            dirty.delete(k);
+          } else {
+            const base = m && m.base !== undefined ? parse(m.base) : undefined;
+            const merged = merge3(base, parse(localTxt), r.value);
+            rawSet.call(ls, k, JSON.stringify(merged));
+            if (!same(merged, r.value)) dirty.add(k); else dirty.delete(k);
+          }
+          meta[k] = { version: r.version, base: JSON.stringify(r.value) };
+        });
+        // Datos que existen sólo en este dispositivo → subirlos
+        for (let i = 0; i < ls.length; i++) {
+          const k = ls.key(i);
+          if (isDataKey(k) && !remote[k]) dirty.add(k);
+        }
+        saveMeta();
+        return remote;
+      }
+
+      async function checkRemote() {
+        if (!SYNC_URL || !cred() || pushing) return;
+        try {
+          const res = await call({ action: "pull" }, 10000);
+          const remote = res.data || {};
+          const changed = Object.keys(remote).some(k => isDataKey(k) && (!meta[k] || meta[k].version !== remote[k].version));
+          if (!changed) { badgeDefault(); return; }
+          if (!dirty.size && document.visibilityState === "visible" && !document.querySelector(".dwsync-busy")) {
+            badge("nuevo", "☁ Hay datos nuevos de otro dispositivo — tocar para actualizar");
+          } else {
+            badge("nuevo", "☁ Hay datos nuevos — tocar para actualizar");
+          }
+        } catch (e) { badgeDefault(); }
+      }
+
+      function syncNow() { return dirty.size ? push() : checkRemote(); }
+
+      /* ---------- Pantalla de clave (una vez por dispositivo) ---------- */
+      function askCred() {
+        return new Promise(resolve => {
+          const ov = document.createElement("div");
+          ov.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif";
+          ov.innerHTML = '<form style="background:#fff;border-radius:16px;padding:22px;width:min(92vw,360px);box-shadow:0 10px 30px rgba(0,0,0,.3)">' +
+            '<div style="font-weight:800;font-size:18px;margin-bottom:6px">🌶️ Conectar con la base de Don Waldino</div>' +
+            '<div style="font-size:13px;color:#555;margin-bottom:14px">Se pide una sola vez en este dispositivo.</div>' +
+            '<label style="font-size:13px;font-weight:600">Tu nombre</label>' +
+            '<input name="d" required placeholder="Ej: Jazmín" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;margin:4px 0 12px">' +
+            '<label style="font-size:13px;font-weight:600">Clave de sincronización</label>' +
+            '<input name="c" required type="password" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;margin:4px 0 16px">' +
+            '<button style="width:100%;padding:11px;border:0;border-radius:10px;background:#dc2626;color:#fff;font-weight:700">Conectar</button>' +
+            '<button type="button" data-skip style="width:100%;padding:8px;border:0;background:none;color:#777;margin-top:6px;font-size:12px">Usar sin sincronizar por ahora</button></form>';
+          document.body.appendChild(ov);
+          ov.querySelector("[data-skip]").onclick = () => { ov.remove(); resolve(false); };
+          ov.querySelector("form").onsubmit = ev => {
+            ev.preventDefault();
+            const f = ev.target;
+            rawSet.call(ls, CRED_KEY, JSON.stringify({ clave: f.c.value.trim(), dispositivo: f.d.value.trim() }));
+            ov.remove(); resolve(true);
+          };
+        });
+      }
+
+      /* ---------- Arranque ---------- */
+      Storage.prototype.setItem = function (k, v) {
+        const unchanged = this === ls && this.getItem(k) === String(v);
+        rawSet.call(this, k, v);
+        if (this === ls && !unchanged && !suppress && isDataKey(k) && SYNC_URL) {
+          dirty.add(k); saveMeta(); schedulePush();
+        }
+      };
+
+      async function boot(init) {
+        if (!SYNC_URL) { init(); return; }
+        if (!cred()) {
+          const ok = await askCred();
+          if (!ok) { init(); badge("offline", "☁ Sin sincronizar (tocar para conectar)"); badgeEl.onclick = () => { askCred().then(() => location.reload()); }; return; }
+        }
+        badge("saving", "☁ Bajando datos…");
+        try {
+          await pullAtBoot();
+        } catch (e) {
+          if (e.message === "clave") { const ok = await askCred(); if (ok) { location.reload(); return; } }
+          badge("offline", "☁ Sin conexión — usando datos de este dispositivo");
+        }
+        init();
+        if (dirty.size) push(); else badgeDefault();
+        setInterval(checkRemote, 60000);
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible") { if (dirty.size) push(); else checkRemote(); }
+        });
+        window.addEventListener("online", () => push());
+      }
+
+      return { boot: boot, syncNow: syncNow, _merge3: merge3, estado: () => ({ pendientes: [...dirty], meta: meta }) };
+    })();
+    window.DWSync = DWSync;
+  </script>
+  <script>
+    /* ========================================================
        ESTRUCTURA DE DATOS Y CONFIGURACIÓN INICIAL
        ======================================================== */
     const STORAGE_KEY_PRODUCTS = "dw_products_v1";
@@ -2981,7 +3266,7 @@ _Stock automático - Don Waldino_`;
     }
 
     // Iniciar app al cargar ventana
-    window.addEventListener("DOMContentLoaded", init);
+    window.addEventListener("DOMContentLoaded", () => DWSync.boot(init));
 
     /* ========================================================
        NUEVAS CONSTANTES DE ALMACENAMIENTO
