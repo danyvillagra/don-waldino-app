@@ -2,7 +2,7 @@
    - La app (index.html) se busca SIEMPRE primero en internet: así cada cambio subido a GitHub se ve enseguida.
    - Si no hay señal, se abre la última versión guardada.
    - Las ventas NO pasan por acá: se guardan en el celular y las sube la sincronización con la planilla. */
-const CACHE = "dw-app-v1";
+const CACHE = "dw-app-v2";
 const PRECACHE = [
   "./",
   "./index.html",
