@@ -1,6 +1,6 @@
 # 🌶️ Don Waldino - Sistema de Gestión de Stock y Ventas
 
-Aplicación web responsiva (Mobile-First / PWA-ready) diseñada para **Jazmín Rodríguez**, Encargada de Ventas de **Don Waldino**.
+Aplicación web instalable (PWA), sincronizada con Google Sheets, diseñada para **Jazmín Rodríguez**, Encargada de Ventas de **Don Waldino**.
 
 ---
 
@@ -67,19 +67,29 @@ Aplicación web responsiva (Mobile-First / PWA-ready) diseñada para **Jazmín R
 
 ---
 
-## 🚀 Cómo publicarlo en GitHub Pages (Gratis para usar en el celular)
+## 📲 Instalar la app
 
-1. Crear un repositorio en GitHub llamado por ejemplo `don-waldino-app`.
-2. Subir el archivo `index.html` **y la carpeta `img/`** (fotos de productos).
-3. En GitHub, ir a **Settings** -> **Pages**.
-4. En **Branch**, seleccionar `main` y la carpeta `/(root)`, luego hacer clic en **Save**.
-5. En 1 minuto tendrás una URL pública (ejemplo: `https://tu-usuario.github.io/don-waldino-app/`).
-6. Jazmín puede abrir ese enlace desde Chrome/Safari en su celular y seleccionar **"Agregar a pantalla de inicio"** para tenerla como una App nativa.
+- **Link:** https://danyvillagra.github.io/don-waldino-app/
+- **Android (Chrome):** botón **📲 Instalar app** (o menú ⋮ → *Instalar app*).
+- **iPhone (Safari):** Compartir → *Agregar a inicio*.
+- Es una app instalable (PWA): abre a pantalla completa, funciona sin señal y se actualiza sola.
+
+---
+
+## ☁️ Dónde viven los datos
+
+- Cada dispositivo guarda una copia local y se **sincroniza con la planilla** *Don Waldino – Base de datos App Ventas* en el Drive de Don Waldino (servidor: Apps Script de la cuenta donwaldinopicantes@gmail.com).
+- Cada dispositivo se conecta una sola vez con nombre + **clave de sincronización** (la tiene Dany).
+- Pestañas de la planilla: `_sync` (copia exacta, **no tocar**), `Ventas` y `Stock` (solo lectura, se regeneran solas).
+- Si dos personas cargan a la vez, los cambios se combinan (no se pisan).
+- Guía completa: PDF *Don_Waldino_Sistema_Ventas_y_Stock.pdf* en el Drive de Don Waldino.
 
 ---
 
 ## 🔧 Cómo hacer cambios en la app
 
-- **Pedírselo a Claude:** decir qué cambiar. Claude edita `index.html`, lo prueba, lo guarda en la carpeta de Antigravity y lo sube a GitHub. En 1–2 minutos queda publicado en la misma dirección.
-- **Hacerlo uno mismo:** editar `index.html` (con Antigravity u otro editor) y subirlo en GitHub → repositorio `don-waldino-app` → *Add file* → *Upload files* → *Commit changes*.
-- Los datos (ventas, stock, cierres) viven en el navegador de cada celular, no en GitHub: actualizar la app **no borra datos** mientras la dirección sea la misma. Igual conviene exportar un respaldo antes de cambios grandes.
+- **Este repositorio es la única fuente oficial del programa.** No hay copias locales vigentes (la carpeta de Antigravity quedó desvinculada).
+- **Pedírselo a Claude:** decir qué cambiar. Claude toma el `index.html` de este repositorio, lo edita, lo prueba y lo sube acá. En 1–2 minutos queda publicado.
+- **Hacerlo uno mismo:** descargar primero el `index.html` actual de este repositorio, editarlo y subirlo en *Add file → Upload files → Commit changes*. Nunca subir una copia vieja: se perderían la sincronización y la app instalable.
+- Archivos: `index.html` (app), `manifest.webmanifest` + `sw.js` + `icons/` (app instalable), `img/` (fotos de productos).
+- Actualizar el programa **no borra datos**: los datos están en la planilla y en cada dispositivo.
