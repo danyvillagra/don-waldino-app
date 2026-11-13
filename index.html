@@ -46,6 +46,10 @@
       -webkit-tap-highlight-color: transparent;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     }
+    /* Avisos flotantes (sincronización / instalar) por encima de la barra inferior en celular */
+    @media (max-width: 767px) {
+      #dwsync-badge, #dw-install-btn { bottom: 72px !important; }
+    }
     .hide-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -89,6 +93,9 @@
 
       <!-- Acciones de cabecera -->
       <div class="flex items-center space-x-2">
+        <button onclick="switchTab('history')" title="Historial de ventas" class="md:hidden p-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-white">
+          <i data-lucide="history" class="w-5 h-5"></i>
+        </button>
         <button onclick="openModal('modalSync')" title="Copia de seguridad / Datos" class="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-white">
           <i data-lucide="database" class="w-5 h-5"></i>
         </button>
